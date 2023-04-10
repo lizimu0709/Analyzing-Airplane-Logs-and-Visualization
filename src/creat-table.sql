@@ -45,4 +45,16 @@ CREATE TABLE Episodes (
     firewall_id INT NOT NULL REFERENCES Firewalls (firewall_id)
 );
 
+-- Create the Results table with the result_id as the primary key
+CREATE TABLE Results (
+  result_id INT IDENTITY(1,1) PRIMARY KEY,
+  cluster_result INT NOT NULL,
+);
+
+-- Create the Detect relations between Features and Results
+CREATE TABLE Detect (
+feature_id INT UNIQUE REFERENCES Features(feature_id),
+result_id INT UNIQUE REFERENCES Results(result_id)
+);
+
 

@@ -1,0 +1,91 @@
+.online-log-viewer {
+    font-size: 16px;
+    margin: 20px 40px 0 45px; 
+    border-bottom: 1px black solid;
+  }
+  
+  .online-log-viewer p {
+    margin: 5px 0 5px 0;
+  }
+  
+  .online-log-viewer a {
+      color: #7ea3cc;
+      text-decoration: none;
+  }
+  
+  .online-log-viewer a:hover {
+      color: #a1bcd9;
+      cursor: pointer;
+  }
+  
+  .online-log-viewer #drop-area {
+      background-color: #ebecef;
+      border: 2px dashed #616c84;
+      height: 210px;
+      width: 335px;
+      vertical-align: top;
+      margin: 20px 10px 20px 0;
+      text-align: center;
+      display: inline-block;
+  }
+  
+  .online-log-viewer .drop-text {
+      margin: 35px 25px 25px 25px;
+      text-align: center;
+      font-size: 180%;
+  }
+  
+  .online-log-viewer .browse-upload {
+      color: #7ea3cc;
+  }
+  
+  .online-log-viewer .browse-upload:hover {
+      color: #a1bcd9;
+      cursor: pointer;
+  }
+  
+  .online-log-viewer .on-drag {
+      background-color: #a1bcd9;
+  }
+  
+  .online-log-viewer #error-message {
+      color: #b3001b;
+      position: relative;
+      top: -55px;
+      font-size: 85%;
+  }
+  
+  .online-log-viewer .hidden {
+    visibility: hidden;
+    height: 0;
+  }
+  
+  .online-log-viewer .description {
+    font-size: 13px;
+    display: inline-block;
+    max-width: 400px;
+    width: 300px;
+    margin: 15px 10px 10px 0;
+  }
+  
+  .online-log-viewer .check {
+    font-size: 75%;
+  }
+  
+  .online-log-viewer td {
+    vertical-align: top;
+    padding-bottom: 3px;
+  } 
+  
+  .online-log-viewer .image {
+    border: 1.4px solid #7ea3cc;
+    display: inline-block;
+    vertical-align: top;
+    margin: 20px 20px 20px 0;
+    display: inline-block;
+  }
+  
+  .online-log-viewer img {
+    height: 210px;
+  }
+  

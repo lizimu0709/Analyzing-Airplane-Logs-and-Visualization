@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+    <title>Upload a file</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        input[type=file] {
+            font-size: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="inputFile">
+    <input type="submit" value="Submit">
+</form>
+</body>
+</html>

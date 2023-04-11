@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 import pandas as pd
 import numpy as np
 from collections import Counter
-from sklearn import manifold
+from sklearn import manifold, metrics
 from numpy import unique
 from numpy import where
 from sklearn.mixture import GaussianMixture
@@ -88,13 +88,6 @@ def upload_file():
 
     used = df_log[feature_type]
     X = np.array(used)
-
-    #t-SNE
-    tsne = manifold.TSNE(n_components=2, init='pca', random_state=501)
-    X_tsne = tsne.fit_transform(X)
-
-    x_min, x_max = X_tsne.min(0), X_tsne.max(0)
-    X_norm = (X_tsne - x_min) / (x_max - x_min)  # normilization
     
     # get number of clusters and final model
     org_feature = df_log["Features"]
@@ -130,11 +123,17 @@ def upload_file():
         best_num = ar[ind] + 1
         best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
 
+    # clustering model and results
     final_model = best_model.fit(X)
     y_gaus = final_model.predict(X)
-    clusters = unique(y_gaus)
-
+    
+    #t-SNE
+    tsne = manifold.TSNE(n_components=2, init='pca', random_state=501)
+    X_tsne = tsne.fit_transform(X)
+    x_min, x_max = X_tsne.min(0), X_tsne.max(0)
+    X_norm = (X_tsne - x_min) / (x_max - x_min)  # normilization
     fig1, ax1 = plt.subplots()
+    clusters = unique(y_gaus)
     for cluster in clusters:
         row_ix = where(y_gaus == cluster)
         ax1.scatter(X_norm[row_ix, 0], X_norm[row_ix, 1])

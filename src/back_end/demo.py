@@ -113,14 +113,8 @@ def upload_file():
             y_kmeans = model.predict(X)
             score.append(metrics.silhouette_score(X, y_kmeans, metric='euclidean'))
 
-        n_components = np.arange(2, set_feature + 1)
-        plt.legend(loc='best')
-        plt.plot(n_components, score, label='S')
-        plt.xlabel('n_components');
-        plt.ylabel('scores');
-
         dif = np.diff(score)
-
+        
         ar = []
         for i in range(len(dif) - 1):
             if dif[i] / 2 > dif[i + 1] and dif[i] / 4 < dif[i + 1]:
@@ -135,8 +129,6 @@ def upload_file():
                 ind = index
         best_num = ar[ind] + 1
         best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
-
-
 
     final_model = best_model.fit(X)
     y_gaus = final_model.predict(X)

@@ -95,10 +95,51 @@ def upload_file():
 
     x_min, x_max = X_tsne.min(0), X_tsne.max(0)
     X_norm = (X_tsne - x_min) / (x_max - x_min)  # normilization
-    models = GaussianMixture(24, covariance_type='spherical', random_state=0).fit(X)
+    
+    # get number of clusters and final model
+    org_feature = df_log["Features"]
+    set_feature = len(set(org_feature))
+    overall = len(org_feature)
 
-    #tmp_model = models[2]
-    y_gaus = models.predict(X)
+    if set_feature / overall < 0.005 and set_feature <= 10:
+        best_num = set_feature
+        best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
+    else:
+        score = []
+
+        for i in range(2, set_feature + 1):
+            model = GaussianMixture(i, covariance_type='spherical', random_state=0)
+            model.fit(X)
+            y_kmeans = model.predict(X)
+            score.append(metrics.silhouette_score(X, y_kmeans, metric='euclidean'))
+
+        n_components = np.arange(2, set_feature + 1)
+        plt.legend(loc='best')
+        plt.plot(n_components, score, label='S')
+        plt.xlabel('n_components');
+        plt.ylabel('scores');
+
+        dif = np.diff(score)
+
+        ar = []
+        for i in range(len(dif) - 1):
+            if dif[i] / 2 > dif[i + 1] and dif[i] / 4 < dif[i + 1]:
+                ar.append(i)
+        mi = min(ar[0], len(dif) - ar[-1])
+
+        ma = 0
+        ind = 0
+        for index, item in enumerate(ar):
+            if score[item + mi] - score[item - mi] > ma:
+                ma = score[item + mi] - score[item - mi]
+                ind = index
+        best_num = ar[ind] + 1
+        best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
+
+
+
+    final_model = best_model.fit(X)
+    y_gaus = final_model.predict(X)
     clusters = unique(y_gaus)
 
     fig1, ax1 = plt.subplots()

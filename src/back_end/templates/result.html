@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <title>{{ filename }}</title>
+  <style>
+    table.data {
+      border-collapse: separate; /* Set to 'separate' to remove solid outline */
+      border: 2px solid rgba(0, 0, 0, 0.96);
+      font-size: 1.2em;
+      font-family: Arial, sans-serif;
+    }
+    table.data td, table.data th {
+      border: 1px solid black;
+      padding: 5px 10px;
+    }
+    table.data th {
+      background-color: #ffffff;
+      font-weight: bold;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      border-top: none; /* Remove the top border */
+    }
+
+    .table-box {
+      border: 1px solid black;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      height: 500px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+<h1><img src="{{ url_for('static', filename='Boeing-logo.png') }}" style="height: 100px; width: 446px;">
+      <img src="{{ url_for('static', filename='ECE_UW_stack_purp.png') }}" style="height: 100px; width: 465px;"></h1>
+
+<h2>The Clustering Results</h2>
+<img src="{{ url_for('static', filename='result_1.png') }}" style="height: 500px; width: 600px;">
+<img src="{{ url_for('static', filename='result_2.png') }}" style="height: 500px; width: 600px;">
+
+<h2>{{ filename }}</h2>
+
+<div class="table-container">
+  {% for table in tables %}
+  <div class="table-box">
+    {{ table|safe }}
+  </div>
+  {% endfor %}
+</div>
+
+</body>
+</html>

@@ -140,13 +140,13 @@ def upload_file():
     for cluster in clusters:
         row_ix = where(y_gaus == cluster)
         ax1.scatter(X_norm[row_ix, 0], X_norm[row_ix, 1])
-    fig1.savefig('result_1.png')
+    fig1.savefig('templates/static/result_1.png')
 
     fig2, ax2 = plt.subplots()
     df_log["Y_Gaussian"] = y_gaus
     data = df_log["Y_Gaussian"].value_counts()
     ax2.bar(data.index, data.values)
-    fig2.savefig('result_2.png')
+    fig2.savefig('templates/static/result_2.png')
 
     df_log = df_log.drop(columns=feature_type)
 

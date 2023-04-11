@@ -35,12 +35,14 @@
   </style>
 </head>
 <body>
-<h1><img src="../visual/ece-logo.png" alt="UW ECE" style="max-width: 400px;">
-  <img src="../visual/Boeing_full_logo.svg.png" alt="Boeing" style="max-width: 400px;"></h1>
+<h1>
+  <img src="{{ url_for('static', filename='ece-logo.png') }}" style="height: 500px; width: 600px;">
+  <img src="{{ url_for('static', filename='Boeing_full_logo.svg.png') }}" style="height: 500px; width: 600px;">
+</h1>
 
 <h2>The Clustering Results</h2>
-<img src="../visual/result_1.png" alt="UW ECE" style="height: 500px; width: 600px;">
-  <img src="../visual/result_2.png" alt="Boeing" style="height: 500px; width: 600px;">
+  <img src="{{ url_for('static', filename='result_1.png') }}" style="height: 500px; width: 600px;">
+<img src="{{ url_for('static', filename='result_2.png') }}" style="height: 500px; width: 600px;">
 <h2>{{ filename }}</h2>
 
 </body>

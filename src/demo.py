@@ -15,14 +15,17 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/upload/upload.html')
+def upload():
+    return render_template('upload/upload.html')
 
-@app.route('/', methods=['POST'])
+@app.route('/upload_file', methods=['POST'])
 def upload_file():
     file = request.files['inputFile']
     file_path = file.filename
     print(file_path, file)
     if not file:
-        return render_template('index.html', error="No file selected.")
+        return render_template('upload/upload.html', error="No file selected.")
 
     class Episode:
         def __init__(self):
@@ -137,17 +140,17 @@ def upload_file():
     for cluster in clusters:
         row_ix = where(y_gaus == cluster)
         ax1.scatter(X_norm[row_ix, 0], X_norm[row_ix, 1])
-    fig1.savefig('./visual/result_1.png')
+    fig1.savefig('result_1.png')
 
     fig2, ax2 = plt.subplots()
     df_log["Y_Gaussian"] = y_gaus
     data = df_log["Y_Gaussian"].value_counts()
     ax2.bar(data.index, data.values)
-    fig2.savefig('./visual/result_2.png')
+    fig2.savefig('result_2.png')
 
     df_log = df_log.drop(columns=feature_type)
 
-    return render_template('./upload/result.html', tables=[df_log.to_html(classes='data')],
+    return render_template('/upload/result.html', tables=[df_log.to_html(classes='data')],
                            titles=df_log.columns.values, filename=file_path.split(".")[0])
 
 

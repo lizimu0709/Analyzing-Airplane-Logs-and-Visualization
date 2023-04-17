@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <title>Upload a file</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        input[type=file] {
+            font-size: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root">{{ react_component }}</div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="inputFile">
+        <input type="submit" value="Upload">
+    </form>
+</body>
+</html>

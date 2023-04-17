@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dataload Page</title>
+	<style>
+		.container {
+			display: flex;
+			flex-direction: row;
+			height: 600px;
+			margin-top: 50px;
+		}
+
+		.left {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			padding: 20px;
+			background-color: #f2f2f2;
+		}
+
+		.left h2 {
+			font-size: 24px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+
+		.left img {
+			max-width: 100%;
+			margin-bottom: 20px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+		}
+
+		.right {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			padding: 20px;
+		}
+
+		.right h2 {
+			font-size: 24px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+
+		.right table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.right th, .right td {
+			padding: 10px;
+			text-align: left;
+			border-bottom: 1px solid #ccc;
+		}
+
+		.right tr:hover {
+			background-color: #f2f2f2;
+		}
+
+		.right .filter {
+			margin-top: 20px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.right .filter label {
+			font-size: 18px;
+			margin-right: 20px;
+		}
+
+		.right .filter input[type="text"] {
+			padding: 10px;
+			border-radius: 5px;
+			border: none;
+			margin-right: 20px;
+			width: 300px;
+			font-size: 18px;
+		}
+
+		.right .filter button {
+			background-color: #333;
+			color: #fff;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			font-size: 18px;
+			cursor: pointer;
+		}
+
+		.right .filter button:hover {
+			background-color: #fff;
+			color: #333;
+		}
+	</style>
+</head>
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+	<h1>Data Load</h1>
+	<div class="container">
+		<div class="left">
+			<h2>List of Log Files</h2>
+			<p>Number of Log Files: 5</p>
+			<ul>
+				<li>Log File 1</li>
+				<li>Log File 2</li>
+				<li>Log File 3</li>
+				<li>Log File 4</li>
+				<li>Log File 5</li>
+			</ul>
+
+			<h2>Data Visualizations</h2>
+			<img src="log_trend.jpg" alt="Log Trend">
+			<img src="top_5_features.jpg" alt="Top 5 Features">
+			<img src="clustering_result.jpg" alt="Clustering Result">
+			<img src="analysis.jpg" alt="Analysis">
+		</div>
+
+		<div class="right">
+			<h2>Raw Data</h2>
+			<table>
+				<thead>
+				
+                <thead>
+	<tr>
+		<th>Date</th>
+		<th>Time</th>
+		<th>Log Message</th>
+		<th>Severity</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>2022-03-15</td>
+		<td>10:30:25</td>
+		<td>Connection established</td>
+		<td>Info</td>
+	</tr>
+	<tr>
+		<td>2022-03-15</td>
+		<td>10:30:27</td>
+		<td>Invalid username or password</td>
+		<td>Error</td>
+	</tr>
+	<tr>
+		<td>2022-03-15</td>
+		<td>10:30:30</td>
+		<td>Access denied</td>
+		<td>Warning</td>
+	</tr>
+	<!-- Add more rows as needed -->
+</tbody>
+</table>
+
+<div class="filter">
+	<label for="search">Search:</label>
+	<input type="text" id="search" name="search" placeholder="Search...">
+	<button type="button">Filter</button>
+</div>
+
+<div class="filter">
+	<label for="severity">Severity:</label>
+	<select id="severity" name="severity">
+		<option value="">All</option>
+		<option value="info">Info</option>
+		<option value="warning">Warning</option>
+		<option value="error">Error</option>
+	</select>
+	<button type="button">Filter</button>
+</div>
+</div>
+</div>
+</body>
+</html>

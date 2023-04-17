@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 import matplotlib.pyplot as plt
 
 
-app = Flask(__name__, template_folder='public')
+app = Flask(__name__, template_folder='public', static_folder='public/static')
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
 
 @app.route('/')
@@ -145,13 +145,13 @@ def upload_file():
     for cluster in clusters:
         row_ix = where(y_gaus == cluster)
         ax1.scatter(X_norm[row_ix, 0], X_norm[row_ix, 1])
-    fig1.savefig('public/result_1.png')
+    fig1.savefig('public/static/result_1.png')
 
     fig2, ax2 = plt.subplots()
     df_log["Y_Gaussian"] = y_gaus
     data = df_log["Y_Gaussian"].value_counts()
     ax2.bar(data.index, data.values)
-    fig2.savefig('public/result_2.png')
+    fig2.savefig('public/static/result_2.png')
 
     df_log = df_log.drop(columns=feature_type)
 

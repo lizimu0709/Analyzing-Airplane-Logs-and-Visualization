@@ -42,8 +42,15 @@
     <img src="./static/Boeing_full_logo.svg.png" style="max-width: 400px;">
   </h1>
     <h2>The Clustering Results</h2>
-      <img src="./static/result_2.png" style="height: 500px; width: 600px;">
-    <img src="./static/result_1.png" style="height: 500px; width: 600px;">
+      <img src="{{ url_for('static', filename='result_1.png') }}" style="height: 500px; width: 600px;">
+    <img src="{{ url_for('static', filename='result_2.png') }}" style="height: 500px; width: 600px;">
     <h2>{{ filename }}</h2>
+    <div class="table-container">
+      {% for table in tables %}
+      <div class="table-box">
+        {{ table|safe }}
+      </div>
+      {% endfor %}
+    </div>
 </body>
 </html>

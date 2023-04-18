@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 
 app = Flask(__name__, template_folder='public', static_folder='public/static')
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
 
 @app.route('/')
 def index():
@@ -26,7 +28,9 @@ def upload():
 def upload_file():
     file = request.files['inputFile']
     if not file:
-        return render_template('upload.html', error="No file selected.")
+        return render_template('upload.html', message='No file selected.')
+    if not file.filename.lower().endswith('.log'):
+        return render_template('upload.html', error="Log Files Only.", message='Log Files Only.')
     
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<ul>
+   {% for item in nav.top %}
+   <li class="{{ 'active' if item.is_active else '' }}">
+       <a href="{{ item.url }}">{{ item.label }}</a>
+   </li>
+   {% endfor %}
+</ul>
+<title>Error</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<style>
+   .container {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       height: 100vh;
+   }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+   <div class="alert alert-danger" role="alert">
+       <h4 class="alert-heading">Error</h4>
+       <p>{{ message }}</p>
+   </div>
+</div>
+{% endblock %}

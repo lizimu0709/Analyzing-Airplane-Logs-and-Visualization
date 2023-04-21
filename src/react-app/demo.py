@@ -10,19 +10,21 @@ from sklearn.mixture import GaussianMixture
 from werkzeug.utils import secure_filename
 import matplotlib.pyplot as plt
 
-
 app = Flask(__name__, template_folder='public', static_folder='public/static')
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
+    os.makedirs(app.config['UPLOAD_FOLDER'])
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+
 @app.route('/upload.html')
 def upload():
     return render_template('upload.html')
+
 
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
@@ -31,7 +33,7 @@ def upload_file():
         return render_template('upload.html', message='No file selected.')
     if not file.filename.lower().endswith('.log'):
         return render_template('upload.html', error="Log Files Only.", message='Log Files Only.')
-    
+
     filename = secure_filename(file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(file_path)
@@ -70,7 +72,7 @@ def upload_file():
 
     def modify_features(line):
         features = []
-        line = line[1:-1].replace("'","").replace(" ","").split(",")
+        line = line[1:-1].replace("'", "").replace(" ", "").split(",")
         for feature in line:
             features.append(feature)
         return features
@@ -96,11 +98,11 @@ def upload_file():
     for index, row in df_log.iterrows():
         feature_dic = Counter(modify_features(row["Features"]))
         for key in feature_dic.keys():
-            df_log.loc[index,key] = feature_dic[key]
+            df_log.loc[index, key] = feature_dic[key]
 
     used = df_log[feature_type]
     X = np.array(used)
-    
+
     # get number of clusters and final model
     org_feature = df_log["Features"]
     set_feature = len(set(org_feature))
@@ -119,7 +121,7 @@ def upload_file():
             score.append(metrics.silhouette_score(X, y_kmeans, metric='euclidean'))
 
         dif = np.diff(score)
-        
+
         ar = []
         for i in range(len(dif) - 1):
             if dif[i] / 2 > dif[i + 1] and dif[i] / 4 < dif[i + 1]:
@@ -138,8 +140,8 @@ def upload_file():
     # clustering model and results
     final_model = best_model.fit(X)
     y_gaus = final_model.predict(X)
-    
-    #t-SNE
+
+    # t-SNE
     tsne = manifold.TSNE(n_components=2, init='pca', random_state=501)
     X_tsne = tsne.fit_transform(X)
     x_min, x_max = X_tsne.min(0), X_tsne.max(0)

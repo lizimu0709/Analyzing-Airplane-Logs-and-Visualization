@@ -32,8 +32,8 @@ class Result extends Component {
       <div>
         <h1>{data.filename}</h1>
         <div dangerouslySetInnerHTML={{ __html: data.tables[0] }} />
-        <img src="./static/result_1.png" alt="Clustering" />
-        <img src="./static/result_2.png" alt="Cluster Distribution" />
+        <img src="{{ url_for('static', filename='result_1.png') }}" alt="Clustering" />
+        <img src="{{ url_for('static', filename='result_2.png') }}" alt="Cluster Distribution" />
       </div>
     );
   }

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<ul>
+   {% for item in nav.top %}
+   <li class="{{ 'active' if item.is_active else '' }}">
+       <a href="{{ item.url }}">{{ item.label }}</a>
+   </li>
+   {% endfor %}
+</ul>
+<title>Error</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<style>
+   .container {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       height: 100vh;
+   }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+   <div class="alert alert-danger" role="alert">
+       <h4 class="alert-heading">Error</h4>
+       <p>{{ message }}</p>
+   </div>
+</div>
+
+<div class="index">
+	<head>
+		<style>
+			#footer {
+				bottom: 0;
+				width: 100%;
+				/* Height of the footer*/
+				height: 40px;
+				background: grey;
+			}
+		</style>
+
+		<head>
+			<body>
+                <noscript>You need to enable JavaScript to run this app.</noscript>
+                <div id="root"></div>
+				<center>
+					<div id="footer">
+						<p>&copy; 2023 My Website. All rights reserved.</p>
+						<img src=".public/static/ece-logo.png" alt="UW ECE" style="max-width: 400px; position: absolute; bottom: 40px;">
+						<img src=".public/static/Boeing_full_logo.svg.png" alt="Boeing" style="max-width: 400px; position: absolute; bottom: 40px; right: 0;">
+					</div>
+				</center>
+			</body>
+		<html>
+</div>
+{% endblock %}

@@ -7,7 +7,8 @@ import MyIndex from './MyIndex';
 import Dataload from './Dataload';
 import Upload from './Upload';
 import Login from './Login';
-import Result from './Result';
+import Firewall from "./Firewall";
+import Staging from "./Staging";
 
 function App() {
   return (
@@ -16,8 +17,9 @@ function App() {
       </header>
       <Routes>
         <Route path="/Dataload" element={<Dataload />} />
+        <Route path="/Dataload" element={<Firewall />} />
+        <Route path="/Dataload" element={<Staging />} />
         <Route path="/Upload" element={<Upload />} />
-        <Route path="/Result" element={<Result />} />
         <Route path="/Login" element={<Login />} />
         <Route path="/" element={<MyIndex />} />
       </Routes>

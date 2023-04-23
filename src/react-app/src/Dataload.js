@@ -1,32 +1,41 @@
 // Dataload.js
-import React from 'react';
+import React, { Component } from 'react';
+import axios from 'axios';
 
-class Dataload extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        html: null
-      };
+class Dataload extends Component {
+  state = {
+    data: null,
+    error: null
+  }
+
+  componentDidMount() {
+    axios.post('/upload_file')
+      .then(response => {
+        this.setState({ data: response.data })
+      })
+      .catch(error => {
+        this.setState({ error: error.message })
+      })
+  }
+
+  render() {
+    const { data, error } = this.state;
+
+    if (error) {
+      return <div>{error}</div>;
     }
-  
-    componentDidMount() {
-        fetch('dataload.html')
-        .then(response => response.text())
-        .then(html => {
-          console.log(html);
-          this.setState({ html });
-        })
-        .catch(error => {
-          console.log('Error fetching index.html:', error);
-          this.setState({ html: '<p>Error fetching index.html.</p>' });
-        });
+
+    if (!data) {
+      return <div>Loading...</div>;
     }
-  
-    render() {
-      return (
-        <div dangerouslySetInnerHTML={{ __html: this.state.html }}></div>
-      );
-    }
+
+    return (
+      <div>
+        <h1>{data.filename}</h1>
+        <div dangerouslySetInnerHTML={{ __html: data.tables[0] }} />
+      </div>
+    );
+  }
 }
-  
-  export default Dataload;
+
+export default Dataload;

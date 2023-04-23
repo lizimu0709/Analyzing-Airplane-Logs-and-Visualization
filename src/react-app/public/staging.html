@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Success</title>
+<ul>
+   {% for item in nav.top %}
+   <li class="{{ 'active' if item.is_active else '' }}">
+       <a href="{{ item.url }}">{{ item.label }}</a>
+   </li>
+   {% endfor %}
+</ul>
+{% endblock %}
+
+{% block body %}
+<div class="success">
+   <p>File uploaded successfully</p>
+   <p>File Name: {{name_staging}}</p>
+   <p>Table: {{data_staging | safe}}</p>
+   <p>{{plot_staging | safe}}</p>
+   <p>Clusters: {{cluster_staging | safe}}</p>
+</div>>
+<div class="index">
+	<head>
+		<style>
+			#footer {
+				bottom: 0;
+				width: 100%;
+				/* Height of the footer*/
+				height: 40px;
+				background: grey;
+			}
+		</style>
+
+		<head>
+			<body>
+                <noscript>You need to enable JavaScript to run this app.</noscript>
+                <div id="root"></div>
+				<center>
+					<div id="footer">
+						<p>&copy; 2023 My Website. All rights reserved.</p>
+						<img src="/static/ece-logo.png" alt="UW ECE" style="max-width: 400px; position: absolute; bottom: 40px;">
+						<img src="/static/Boeing_full_logo.svg.png" alt="Boeing" style="max-width: 400px; position: absolute; bottom: 40px; right: 0;">
+					</div>
+				</center>
+			</body>
+		<html>
+</div>
+{% endblock %}

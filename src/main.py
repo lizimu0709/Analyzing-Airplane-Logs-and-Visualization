@@ -15,8 +15,11 @@ from numpy import unique, where
 from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 import numpy as np
-import plotly.tools as tls
+from plotly.tools import mpl_to_plotly
 from flask_restful import Api, Resource
+from plotly.subplots import make_subplots
+from ipywidgets import widgets
+import plotly.figure_factory as ff
 
 app = Flask(__name__, template_folder='react-app/public', static_folder='react-app/public/static')
 nav = Navigation(app)
@@ -47,30 +50,42 @@ def dataload():
         try:
             absolute_path = os.path.dirname(__file__)
             full_path = absolute_path + "\\" + dataload_file.filename
+
+            # Format data to a dataframe
             df = log2df(full_path)
             df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
             df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
             logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
-            fig = px.line(logs_per_day, x="Episode Start Date", y="Count", title="Logs per Day")
-            fig_html = pio.to_html(fig, full_html=False)
+
+            fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
 
             clusters = cluster(df)
-            clusters = tls.mpl_to_plotly(clusters)
-            clusters_html = pio.to_html(clusters, full_html=False)
 
-            table = go.Figure(data=[go.Table(
+            # Table
+            trace_table = go.Table(
                 header=dict(values=list(df.columns),
                 align='left'),
                 cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
-                align='left')
-            )])
-            table_html = pio.to_html(table, full_html=False)
+                align='left'),
+                domain=dict(x=[0, 0.45],
+                y=[0, 1])
+            )
+
+            layout = dict(xaxis1=dict( dict(domain=[0.5, 1], anchor='y1')),
+                        yaxis1=dict( dict(domain=[0, 1], anchor='x1')),
+                        title='Dataload Analysis')
+
+            fig = go.Figure(data = [trace_table, fig_bar], layout = layout)
+
+            fig_html = pio.to_html(fig, full_html=False)
+            clusters_html = pio.to_html(clusters, full_html=False)
+
             return render_template(
                 "dataload.html", 
                 name_dataload = dataload_file.filename, 
-                data_dataload = table_html,
                 plot_dataload = fig_html,
                 cluster_dataload = clusters_html)
+
         except pd.errors.EmptyDataError:
             return render_template("error.html", message="File is empty")
     else:
@@ -84,30 +99,42 @@ def firewall():
         try:
             absolute_path = os.path.dirname(__file__)
             full_path = absolute_path + "\\" + firewall_file.filename
+
+            # Format data to a dataframe
             df = log2df(full_path)
             df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
             df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
             logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
-            fig = px.line(logs_per_day, x="Episode Start Date", y="Count", title="Logs per Day")
-            fig_html = pio.to_html(fig, full_html=False)
+
+            fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
 
             clusters = cluster(df)
-            clusters = tls.mpl_to_plotly(clusters)
-            clusters_html = pio.to_html(clusters, full_html=False)
 
-            table = go.Figure(data=[go.Table(
+            # Table
+            trace_table = go.Table(
                 header=dict(values=list(df.columns),
                 align='left'),
                 cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
-                align='left')
-            )])
-            table_html = pio.to_html(table, full_html=False)
+                align='left'),
+                domain=dict(x=[0, 0.45],
+                y=[0, 1])
+            )
+
+            layout = dict(xaxis1=dict( dict(domain=[0.5, 1], anchor='y1')),
+                        yaxis1=dict( dict(domain=[0, 1], anchor='x1')),
+                        title='firewall Analysis')
+
+            fig = go.Figure(data = [trace_table, fig_bar], layout = layout)
+
+            fig_html = pio.to_html(fig, full_html=False)
+            clusters_html = pio.to_html(clusters, full_html=False)
+
             return render_template(
                 "firewall.html", 
                 name_firewall = firewall_file.filename, 
-                data_firewall = table_html,
                 plot_firewall = fig_html,
                 cluster_firewall = clusters_html)
+
         except pd.errors.EmptyDataError:
             return render_template("error.html", message="File is empty")
     else:
@@ -121,30 +148,42 @@ def staging():
         try:
             absolute_path = os.path.dirname(__file__)
             full_path = absolute_path + "\\" + staging_file.filename
+
+            # Format data to a dataframe
             df = log2df(full_path)
             df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
             df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
             logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
-            fig = px.line(logs_per_day, x="Episode Start Date", y="Count", title="Logs per Day")
-            fig_html = pio.to_html(fig, full_html=False)
+
+            fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
 
             clusters = cluster(df)
-            clusters = tls.mpl_to_plotly(clusters)
-            clusters_html = pio.to_html(clusters, full_html=False)
 
-            table = go.Figure(data=[go.Table(
+            # Table
+            trace_table = go.Table(
                 header=dict(values=list(df.columns),
                 align='left'),
                 cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
-                align='left')
-            )])
-            table_html = pio.to_html(table, full_html=False)
+                align='left'),
+                domain=dict(x=[0, 0.45],
+                y=[0, 1])
+            )
+
+            layout = dict(xaxis1=dict( dict(domain=[0.5, 1], anchor='y1')),
+                        yaxis1=dict( dict(domain=[0, 1], anchor='x1')),
+                        title='staging Analysis')
+
+            fig = go.Figure(data = [trace_table, fig_bar], layout = layout)
+
+            fig_html = pio.to_html(fig, full_html=False)
+            clusters_html = pio.to_html(clusters, full_html=False)
+
             return render_template(
                 "staging.html", 
                 name_staging = staging_file.filename, 
-                data_staging = table_html,
                 plot_staging = fig_html,
                 cluster_staging = clusters_html)
+
         except pd.errors.EmptyDataError:
             return render_template("error.html", message="File is empty")
     else:
@@ -288,24 +327,30 @@ def cluster(df_log):
     x_min, x_max = X_tsne.min(0), X_tsne.max(0)
     X_norm = (X_tsne - x_min) / (x_max - x_min)  # normilization
 
-    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(14, 5))
+    # fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(14, 5))
+
+    fig = make_subplots(rows=1, cols=2)
+
     clusters = unique(y_gaus)
     for cluster in clusters:
         row_ix = where(y_gaus == cluster)
-        ax1.scatter(X_norm[row_ix, 0], X_norm[row_ix, 1])
-
-    ax1.set_title('Scatter Plot')
-    ax1.set_xlabel('X Axis')
-    ax1.set_ylabel('Y Axis')
+        row_ix = list(row_ix[0])
+        df = pd.DataFrame(X_norm, columns = ['x', 'y'])
+        name = 'Cluster ' + str(cluster)
+        print(name)
+        fig.append_trace(go.Scatter(x=df[df.index.isin(row_ix)]['x'],
+                                         y=df[df.index.isin(row_ix)]['y'],
+                                         mode='markers',
+                                         name=name
+                                         ), row=1, col=2)
 
     df_log["Y_Gaussian"] = y_gaus
     data = df_log["Y_Gaussian"].value_counts()
-    ax2.bar(data.index, data.values)
 
-    ax2.set_title('Bar Chart')
-    ax2.set_xlabel('Cluster')
-    ax2.set_ylabel('Count')
-    # fig.savefig('static/result.png')
+    fig_bar = go.Bar(x=data.index, y=data.values, name='Cluster')
+
+    fig.append_trace(fig_bar, row=1, col=1)
+    
     return fig
 
 if __name__ == '__main__':  

@@ -1,5 +1,20 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+
+<ul>
+    {% for item in nav.top %}
+    <li class="{{ 'active' if item.is_active else '' }}">
+        <a href="{{ item.url }}">{{ item.label }}</a>
+    </li>
+    {% endfor %}
+</ul>
+
 <head>
     <title>Upload a file</title>
     <style>
@@ -21,6 +36,7 @@
         }
     </style>
 </head>
+
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root">{{ react_component }}</div>
@@ -29,31 +45,6 @@
         <input type="file" name="file">
         <input type="submit" value="Upload">
     </form>
-<div class="index">
-	<head>
-		<style>
-			#footer {
-				bottom: 0;
-				width: 100%;
-				/* Height of the footer*/
-				height: 40px;
-				background: grey;
-			}
-		</style>
-
-		<head>
-			<body>
-                <noscript>You need to enable JavaScript to run this app.</noscript>
-                <div id="root"></div>
-				<center>
-					<div id="footer">
-						<p>&copy; 2023 My Website. All rights reserved.</p>
-						<img src=".public/static/ece-logo.png" alt="UW ECE" style="max-width: 400px; position: absolute; bottom: 40px;">
-						<img src=".public/static/Boeing_full_logo.svg.png" alt="Boeing" style="max-width: 400px; position: absolute; bottom: 40px; right: 0;">
-					</div>
-				</center>
-			</body>
-		<html>
-</div>
 </body>
+
 </html>

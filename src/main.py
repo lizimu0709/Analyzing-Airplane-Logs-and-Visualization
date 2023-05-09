@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import plotly.express as px
 import plotly.io as pio
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, g
 from flask_navigation import Navigation
 import plotly.graph_objects as go
 from flask_caching import Cache
@@ -20,24 +20,58 @@ from flask_restful import Api, Resource
 from plotly.subplots import make_subplots
 from ipywidgets import widgets
 import plotly.figure_factory as ff
+from models import EmailCaptchaModel, UserModel
+from forms import RegisterForm, LoginForm
+from werkzeug.security import generate_password_hash, check_password_hash
+from exts import mail, db
+from flask_mail import Message
+import string
+import random
+import config
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+# import wtforms
+# from wtforms.validators import Email, Length, EqualTo, InputRequired
+
 
 app = Flask(__name__, template_folder='react-app/public', static_folder='react-app/public/static')
 nav = Navigation(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+app.config.from_object(config)
 
+db.init_app(app)
+mail.init_app(app)
+migrate = Migrate(app, db)
 nav.Bar('top', [nav.Item('Home', 'index'),
                 nav.Item('Dataload', 'dataload'),
                 nav.Item('Firewall', 'firewall'),
                 nav.Item('Staging', 'staging'),
                 nav.Item('Upload', 'upload'),
-                nav.Item('Login', 'login')
+                # nav.Item('Login', 'login'),
+                # nav.Item('Register', 'register')
                 ])
 
 uploaded_file = None
 dataload_file = None
 firewall_file = None
 staging_file = None
-  
+
+
+@app.before_request
+def my_before_request():
+    user_id = session.get("user_id")
+    if user_id:
+        user = UserModel.query.get(user_id)
+        setattr(g, "user", user)
+    else:
+        setattr(g, "user", None)
+
+
+@app.context_processor
+def my_context_processor():
+    return {"user": g.user}
+
+
 @app.route('/')
 def index():  
     return render_template('index.html')  
@@ -193,9 +227,87 @@ def staging():
 def upload():
     return render_template('upload.html')
 
-@app.route('/login')
+
+
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    if request.method == 'GET':
+        return render_template("login.html")
+    else:
+        form = LoginForm(request.form)
+        print(form.email.data, form.password.data)
+        if form.validate():
+            email = form.email.data
+            password = form.password.data
+            print(email, password)
+            user = UserModel.query.filter_by(email=email).first()
+            if not user:
+                print("Email does not exist in the database!")
+                return redirect(url_for("login"))
+            if check_password_hash(user.password, password):
+                # cookie：
+                # Cookie is not suitable for storing too much data, only suitable for storing a small amount of data
+                # Cookie is generally used to store login authorization information
+                # Flask's session is encrypted and stored in the cookie
+                session['user_id'] = user.id
+                cache.delete('dataload')
+                cache.delete('firewall')
+                cache.delete('staging')
+                cache.delete('error')
+                cache.delete('success')
+                return render_template("index.html")
+            else:
+                print("Wrong Password!")
+                return render_template("login.html")
+        else:
+            print(form.errors)
+            return render_template("login.html")
+
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template("register.html")
+    else:
+        form = RegisterForm(request.form)
+        if form.validate():
+            email = form.email.data
+            username = form.username.data
+            password = form.password.data
+            user = UserModel(email=email, username=username, password=generate_password_hash(password))
+            db.session.add(user)
+            db.session.commit()
+            return redirect(url_for("login"))
+        else:
+            print(form.errors)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f'{error}', 'danger')
+            return redirect(url_for("register"))
+
+@app.route("/logout")
+def logout():
+    cache.delete('dataload')
+    cache.delete('firewall')
+    cache.delete('staging')
+    session.clear()
+    setattr(g, "user", None)
+    return render_template("index.html")
+
+@app.route("/captcha/email")
+def get_email_captcha():
+    email = request.args.get("email")
+    source = string.digits * 4
+    captcha = random.sample(source, 4)
+    captcha = "".join(captcha)
+    # I/O：Input/Output
+    message = Message(subject="Boeing Analysis Verification Code", recipients=[email],
+                      body=f"Your code is: {captcha}")
+    mail.send(message)
+    # memcached/redis
+    email_captcha = EmailCaptchaModel(email=email, captcha=captcha)
+    db.session.add(email_captcha)
+    db.session.commit()
+    return jsonify({"code": 200, "message": "", "data": None})
 
 @app.route('/success', methods = ['POST'])  
 def success():
@@ -352,6 +464,8 @@ def cluster(df_log):
     fig.append_trace(fig_bar, row=1, col=1)
     
     return fig
+
+
 
 if __name__ == '__main__':  
     app.run(debug=True)

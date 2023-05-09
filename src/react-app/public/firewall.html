@@ -8,11 +8,26 @@
 <title>Success</title>
 
 <ul>
-   {% for item in nav.top %}
-   <li class="{{ 'active' if item.is_active else '' }}">
-       <a href="{{ item.url }}">{{ item.label }}</a>
-   </li>
-   {% endfor %}
+    {% for item in nav.top %}
+        <li class="{{ 'active' if item.is_active else '' }}">
+            <a href="{{ item.url }}">{{ item.label }}</a>
+        </li>
+    {% endfor %}
+    {% if user %}
+        <li class="nav-item">
+            <a class="link">{{ user.username }}</a>
+        </li>
+        <li class="nav-item">
+            <a class="link" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="link" href="{{ url_for('login') }}">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="link" href="{{ url_for('register') }}">Register</a>
+        </li>
+    {% endif %}
 </ul>
 
 <body>

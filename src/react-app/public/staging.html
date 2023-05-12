@@ -5,40 +5,239 @@
     <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <title>Success</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+<title>Success</title>
 
-    <ul>
-        {% for item in nav.top %}
-            <li class="{{ 'active' if item.is_active else '' }}">
-                <a href="{{ item.url }}">{{ item.label }}</a>
-            </li>
-        {% endfor %}
-        {% if user %}
-            <li class="nav-item">
-                <a class="link">{{ user.username }}</a>
-            </li>
-            <li class="nav-item">
-                <a class="link" href="{{ url_for('logout') }}">Logout</a>
-            </li>
-        {% else %}
-            <li class="nav-item">
-                <a class="link" href="{{ url_for('login') }}">Login</a>
-            </li>
-            <li class="nav-item">
-                <a class="link" href="{{ url_for('register') }}">Register</a>
-            </li>
-        {% endif %}
-    </ul>
+<ul>
+   {% for item in nav.top %}
+   <li class="{{ 'active' if item.is_active else '' }}">
+       <a href="{{ item.url }}">{{ item.label }}</a>
+   </li>
+   {% endfor %}
+</ul>
 
 <body>
 	<div class="success">
 	<p>File uploaded successfully</p>
 	<p>File Name: {{name_staging}}</p>
 	<p>{{plot_staging | safe}}</p>
-	<p>{{cluster_staging | safe}}</p>
 	</div>
 	<body>
 		<noscript>You need to enable JavaScript to run this app.</noscript>
+
+        <div id="pie-chart" style="width: 70%; height: 500px; float: left;"></div>
+        <script type="text/javascript">
+            // read json data
+            var json_data = null;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{{ url_for('static', filename='staging.json') }}', false);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    json_data = JSON.parse(xhr.responseText);
+                }
+            };
+            xhr.send();
+
+            var pieData = [];
+            var pieLabels = [];
+            for (var key in json_data) {
+                var total = 0;
+                for (var k in json_data[key]) {
+                    total += json_data[key][k];
+                }
+                pieData.push(total);
+                pieLabels.push(key);
+            }
+            var pieChart = echarts.init(document.getElementById('pie-chart'));
+            var pieOption = {
+
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 10,
+                    data: pieLabels
+                },
+                series: [
+                    {
+                        name: 'Category',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: '30',
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            {value: pieData[0], name: pieLabels[0]},
+                            {value: pieData[1], name: pieLabels[1]},
+                            {value: pieData[2], name: pieLabels[2]}
+                        ]
+                    }
+                ]
+            };
+            pieChart.setOption(pieOption);
+        </script>
+
+        <div id="success-chart" style="width: 50%; height: 400px; float: left;"></div>
+        <div id="fail-chart" style="width: 50%; height: 400px; float: left;"></div>
+        <div id="other-chart" style="width: 50%; height: 400px; float: left;"></div>
+        <script type="text/javascript">
+            var json_data = null;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{{ url_for('static', filename='staging.json') }}', false);
+            xhr.onload = function() {
+            if (xhr.status === 200) {
+            json_data = JSON.parse(xhr.responseText);
+        }
+        };
+            xhr.send();
+
+            var successData = [];
+            var successLabels = [];
+            for (var k in json_data.Success) {
+            successLabels.push(k);
+            successData.push(json_data.Success[k]);
+        }
+            var successChart = echarts.init(document.getElementById('success-chart'));
+            var successOption = {
+            title: {
+            text: 'Success'
+        },
+            tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+            type: 'shadow'
+        }
+        },
+            xAxis: {
+            type: 'category',
+            name: 'Clusters',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+            data: successLabels
+        },
+            yAxis: {
+            type: 'value',
+            name: 'Count',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+        },
+            series: [{
+            data: successData,
+            type: 'bar',
+                itemStyle: {
+                    color:  ['#c03532']
+                }
+        }]
+        };
+            successChart.setOption(successOption);
+
+            var failData = [];
+            var failLabels = [];
+            for (var k in json_data.Fail) {
+            failLabels.push(k);
+            failData.push(json_data.Fail[k]);
+        }
+            var failChart = echarts.init(document.getElementById('fail-chart'));
+            var failOption = {
+            title: {
+            text: 'Fail'
+        },
+            tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+            type: 'shadow'
+        }
+        },
+            xAxis: {
+            type: 'category',
+            name: 'Clusters',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+            data: failLabels
+        },
+            yAxis: {
+            type: 'value',
+            name: 'Count',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+        },
+            series: [{
+            data: failData,
+            type: 'bar',
+                itemStyle: {
+                    color:  ['#2f4454']
+                }
+        }]
+        };
+            failChart.setOption(failOption);
+
+            var otherData = [];
+            var otherLabels = [];
+            for (var k in json_data.Other) {
+            otherLabels.push(k);
+            otherData.push(json_data.Other[k]);
+        }
+            var otherChart = echarts.init(document.getElementById('other-chart'));
+            var otherOption = {
+            title: {
+            text: 'Other'
+        },
+            tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+            type: 'shadow'
+        }
+        },
+            xAxis: {
+            type: 'category',
+            name: 'Clusters',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+            data: otherLabels
+        },
+            yAxis: {
+            type: 'value',
+            name: 'Count',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+        },
+            series: [{
+            data: otherData,
+            type: 'bar',
+                itemStyle: {
+                    color:  ['#609fa8']
+                }
+        }]
+        };
+            otherChart.setOption(otherOption);
+        </script>
+
 		<div class="footer">
 			<div style="display: flex; justify-content: center;">
 			</div>

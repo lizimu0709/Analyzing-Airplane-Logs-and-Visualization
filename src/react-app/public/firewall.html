@@ -5,29 +5,15 @@
     <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
 <title>Success</title>
 
 <ul>
-    {% for item in nav.top %}
-        <li class="{{ 'active' if item.is_active else '' }}">
-            <a href="{{ item.url }}">{{ item.label }}</a>
-        </li>
-    {% endfor %}
-    {% if user %}
-        <li class="nav-item">
-            <a class="link">{{ user.username }}</a>
-        </li>
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-    {% else %}
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('register') }}">Register</a>
-        </li>
-    {% endif %}
+   {% for item in nav.top %}
+   <li class="{{ 'active' if item.is_active else '' }}">
+       <a href="{{ item.url }}">{{ item.label }}</a>
+   </li>
+   {% endfor %}
 </ul>
 
 <body>
@@ -35,10 +21,69 @@
 	<p>File uploaded successfully</p>
 	<p>File Name: {{name_firewall}}</p>
 	<p>{{plot_firewall | safe}}</p>
-	<p>{{cluster_firewall | safe}}</p>
 	</div>
 	<body>
 		<noscript>You need to enable JavaScript to run this app.</noscript>
+
+        <div id="other-chart" style="width: 80%; height: 400px; float: left;"></div>
+
+        <script type="text/javascript">
+            var json_data = null;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{{ url_for('static', filename='firewall.json') }}', false);
+            xhr.onload = function() {
+            if (xhr.status === 200) {
+            json_data = JSON.parse(xhr.responseText);
+        }
+        };
+            xhr.send();
+
+            var otherData = [];
+            var otherLabels = [];
+            for (var k in json_data.Other) {
+            otherLabels.push(k);
+            otherData.push(json_data.Other[k]);
+        }
+            var otherChart = echarts.init(document.getElementById('other-chart'));
+            var otherOption = {
+            title: {
+            text: 'Firewall Logs'
+        },
+            tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+            type: 'shadow'
+        }
+        },
+            xAxis: {
+            type: 'category',
+            name: 'Clusters',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+            data: otherLabels
+        },
+            yAxis: {
+            type: 'value',
+            name: 'Counter',
+            nameTextStyle: {
+                color: '#333',
+                fontSize: 16,
+            },
+        },
+            series: [{
+            data: otherData,
+            type: 'bar',
+                itemStyle: {
+                    color:  ['#609fa8']
+                }
+        }]
+        };
+            otherChart.setOption(otherOption);
+        </script>
+
+
 		<div class="footer">
 			<div style="display: flex; justify-content: center;">
 			</div>

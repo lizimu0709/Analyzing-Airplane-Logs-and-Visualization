@@ -1,97 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
-    <title>Login</title>
-    <style>
-        form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 100px;
-        }
+	<title>Login</title>
+	<style>
+		form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 50px;
+		}
 
-        label {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
+		label {
+			font-size: 20px;
+			margin-bottom: 10px;
+		}
 
-        input[type="email"],
-        input[type="password"] {
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            margin-bottom: 20px;
-            width: 300px;
-            font-size: 18px;
-        }
+		input[type="text"],
+		input[type="password"] {
+			padding: 10px;
+			border-radius: 5px;
+			border: none;
+			margin-bottom: 20px;
+			width: 300px;
+			font-size: 18px;
+		}
 
-        input[type="submit"] {
-            background-color: #333;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 18px;
-            cursor: pointer;
-        }
+		input[type="submit"] {
+			background-color: #333;
+			color: #fff;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			font-size: 18px;
+			cursor: pointer;
+		}
 
-        input[type="submit"]:hover {
-            background-color: #fff;
-            color: #333;
-        }
-    </style>
+		input[type="submit"]:hover {
+			background-color: #fff;
+			color: #333;
+		}
+	</style>
 </head>
 <body>
-<ul>
-    {% for item in nav.top %}
-        <li class="{{ 'active' if item.is_active else '' }}">
-            <a href="{{ item.url }}">{{ item.label }}</a>
-        </li>
-    {% endfor %}
-    {% if user %}
-        <li class="nav-item">
-            <a class="link">{{ user.username }}</a>
-        </li>
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-    {% else %}
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('register') }}">Register</a>
-        </li>
-    {% endif %}
-</ul>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="text-center mb-4">Login</h1>
-            <form action="#" method="post">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email:</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
-                </div>
+	<noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+	<h1>Login</h1>
+	<form action="#" method="post">
+		<label for="username">Username:</label>
+		<input type="text" id="username" name="username" required>
 
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password:</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
+		<label for="password">Password:</label>
+		<input type="password" id="password" name="password" required>
 
-                <input type="submit" class="btn btn-primary" value="Login">
-            </form>
-        </div>
-    </div>
-</div>
-
-<script src="{{ url_for('static', filename='jquery-3.6.4.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"></script>
+		<input type="submit" value="Login">
+	</form>
 </body>
 </html>

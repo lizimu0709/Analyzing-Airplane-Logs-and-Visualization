@@ -9,26 +9,12 @@
 
 <ul>
     {% for item in nav.top %}
-        <li class="{{ 'active' if item.is_active else '' }}">
-            <a href="{{ item.url }}">{{ item.label }}</a>
-        </li>
+    <li class="{{ 'active' if item.is_active else '' }}">
+        <a href="{{ item.url }}">{{ item.label }}</a>
+    </li>
     {% endfor %}
-    {% if user %}
-        <li class="nav-item">
-            <a class="text">{{ user.username }}</a>
-        </li>
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-    {% else %}
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="link" href="{{ url_for('register') }}">Register</a>
-        </li>
-    {% endif %}
 </ul>
+
 <head>
     <title>Upload a file</title>
     <style>
@@ -54,7 +40,6 @@
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root">{{ react_component }}</div>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <form action="{{ url_for('success') }}" method="post" enctype="multipart/form-data">
         <input type="file" name="file">
         <input type="submit" value="Upload">

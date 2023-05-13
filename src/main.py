@@ -1,37 +1,79 @@
-
-from distutils.log import debug
-from fileinput import filename
 import pandas as pd
 import os
-import plotly.express as px
+import json
 import plotly.io as pio
 from flask import Flask, render_template, request, redirect
-from flask_navigation import Navigation
+from flask_caching import Cache
 import plotly.graph_objects as go
 from flask_caching import Cache
 from collections import Counter
-from sklearn import manifold, metrics
-from numpy import unique, where
+from sklearn import metrics
 from sklearn.mixture import GaussianMixture
-import matplotlib.pyplot as plt
 import numpy as np
-from plotly.tools import mpl_to_plotly
 from flask_restful import Api, Resource
-from plotly.subplots import make_subplots
-from ipywidgets import widgets
-import plotly.figure_factory as ff
 
 app = Flask(__name__, template_folder='react-app/public', static_folder='react-app/public/static')
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
 
 uploaded_file = None
 dataload_file = None
 firewall_file = None
 staging_file = None
-  
+
+
 @app.route('/')
-def index():  
+def index():
     return render_template('index.html')
+
+
+def classify_features(features):
+    if 'E1' in features and 'E2' not in features:
+        return 'Success'
+    elif 'E2' in features and 'E1' not in features:
+        return 'Fail'
+    else:
+        return 'Other'
+
+
+def combine_by_cluster(df):
+    df.fillna('None', inplace=True)
+    merged_df = df.groupby('Y_Gaussian').agg({
+        'Airplane Tail': lambda x: '+'.join(x),
+        'Features': lambda x: '+'.join(x),
+        'Category': lambda x: x.iloc[0]
+    })
+
+    merged_df = merged_df.reset_index().rename(columns={
+        'Airplane Tail': 'Airplane Tails',
+    })
+
+    columns = ["Airplane Tails",  "Features"]
+    for column in columns:
+        merged_df[column] = merged_df[column].apply(lambda x: x.split('+')).apply(lambda x: list(set(x)))
+
+    return merged_df
+
+def results_by_Category(df_log):
+    Category_count = {}
+    feature_count = {}
+    detailed_information = []
+    df_log['Category'] = df_log['Features'].apply(classify_features)
+    for Category in ['Success', 'Fail', 'Other']:
+        df_temp = df_log[df_log['Category'] == Category]
+        count = df_temp['Features'].value_counts()
+        feature_count[Category] = {'high': [], 'low': []}
+        large = count.nlargest(2).to_dict()
+        small = count.nsmallest(2).to_dict()
+        for k, v in large.items():
+            feature_count[Category]['high'].append(str({k:v})[1:-1])
+        for k, v in small.items():
+            feature_count[Category]['low'].append(str({k:v})[1:-1])
+        if len(df_temp) != 0:
+            cluster(getFeature(df_temp), df_temp)
+            detailed_information.append(combine_by_cluster(df_temp))
+            Category_count[Category] = (df_temp["Y_Gaussian"].value_counts().to_dict())
+    return Category_count, feature_count, detailed_information
 
 @app.route('/dataload')
 def dataload():
@@ -40,28 +82,113 @@ def dataload():
         calculated = cache.get('flag_dataload')
         if calculated is None:
             try:
-                file_name, fig_html, clusters_html = calculate(dataload_file)
-                calculated = True
-                cache.set('flag_dataload', calculated, timeout=86400)
-                cache.set('fig_html_dataload', fig_html, timeout=86400)
-                cache.set('clusters_html_dataload', clusters_html, timeout=86400)
+                absolute_path = os.path.dirname(__file__)
+                # need fix (save the file to specific route)
+                full_path = absolute_path + "\\" + dataload_file.filename
+
+                # Format data to a dataframe
+                df = log2df(full_path)
+                df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
+                df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
+                logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
+
+                fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
+
+                Category_count, feature_count, detailed_information = results_by_Category(df)
+                df_e1, df_e2, df_other = detailed_information[0], detailed_information[1], detailed_information[2]
+                relative_path = "react-app\public\static\dataload.json"
+                file_path = absolute_path + '\\' + relative_path
+                json_data = json.dumps(Category_count)
+                with open(file_path, 'w') as f:
+                    f.write(json_data)
+
+                # Table
+                trace_table = go.Table(
+                    header=dict(values=list(df.columns),
+                                align='left'),
+                    cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
+                               align='left'),
+                    domain=dict(x=[0, 0.45],
+                                y=[0, 1])
+                )
+
+                layout = dict(xaxis1=dict(dict(domain=[0.5, 1], anchor='y1')),
+                              yaxis1=dict(dict(domain=[0, 1], anchor='x1')),
+                              title='Dataload Analysis')
+                fig = go.Figure(data=[trace_table, fig_bar], layout=layout)
+
+                trace_table2 = go.Table(
+                    header=dict(values=list(df_e1.columns),
+                                align='left'),
+                    cells=dict(values=[df_e1[k].tolist() for k in df_e1.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout2 = dict(title='General information of success clusters')
+                fig2 = go.Figure(data=[trace_table2], layout=layout2)
+
+                trace_table3 = go.Table(
+                    header=dict(values=list(df_e2.columns),
+                                align='left'),
+                    cells=dict(values=[df_e2[k].tolist() for k in df_e2.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout3 = dict(title='General information of fail clusters')
+                fig3 = go.Figure(data=[trace_table3], layout=layout3)
+
+                trace_table4 = go.Table(
+                    header=dict(values=list(df_other.columns),
+                                align='left'),
+                    cells=dict(values=[df_other[k].tolist() for k in df_other.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout4 = dict(title='General information of other clusters')
+                fig4 = go.Figure(data=[trace_table4], layout=layout4)
+
+                fig_html = pio.to_html(fig, full_html=False)
+                success_analysis = pio.to_html(fig2, full_html=False)
+                fail_analysis = pio.to_html(fig3, full_html=False)
+                other_analysis = pio.to_html(fig4, full_html=False)
+
+                cache.set('flag_dataload', True, timeout=86400)
+                cache.set('plot_dataload', fig_html, timeout=86400)
+                cache.set('log_count', df.shape[0], timeout=86400)
+                cache.set('feature_count', feature_count, timeout=86400)
+                cache.set('success_analysis', success_analysis, timeout=86400)
+                cache.set('fail_analysis', fail_analysis, timeout=86400)
+                cache.set('other_analysis', other_analysis, timeout=86400)
+
                 return render_template(
-                    "dataload.html", 
-                    name_dataload = file_name, 
-                    plot_dataload = fig_html,
-                    cluster_dataload = clusters_html)
+                    "dataload.html",
+                    name_dataload=dataload_file.filename,
+                    plot_dataload=fig_html,
+                    log_count=df.shape[0],
+                    feature_count=feature_count,
+                    success_analysis=success_analysis,
+                    fail_analysis=fail_analysis,
+                    other_analysis=other_analysis,
+                )
             except pd.errors.EmptyDataError:
                 return render_template("error.html", message="File is empty")
         else:
-            fig_html = cache.get('fig_html_dataload')
-            clusters_html = cache.get('clusters_html_dataload')
+            fig_html = cache.get('flag_dataload')
+            log_count = cache.get('log_count')
+            feature_count = cache.get('feature_count')
+            success_analysis = cache.get('success_analysis')
+            fail_analysis = cache.get('fail_analysis')
+            other_analysis = cache.get('other_analysis')
             return render_template(
-                    "dataload.html", 
-                    name_dataload = dataload_file.filename, 
-                    plot_dataload = fig_html,
-                    cluster_dataload = clusters_html)
+                    "dataload.html",
+                    name_dataload=dataload_file.filename,
+                    plot_dataload=fig_html,
+                    log_count=log_count,
+                    feature_count=feature_count,
+                    success_analysis=success_analysis,
+                    fail_analysis=fail_analysis,
+                    other_analysis=other_analysis,
+                )
     else:
         return render_template("error.html", message="No dataload file found")
+
 
 @app.route('/firewall')
 def firewall():
@@ -70,28 +197,85 @@ def firewall():
         calculated = cache.get('flag_firewall')
         if calculated is None:
             try:
-                file_name, fig_html, clusters_html = calculate(firewall_file)
-                calculated = True
-                cache.set('flag_firewall', calculated, timeout=86400)
-                cache.set('fig_html_firewall', fig_html, timeout=86400)
-                cache.set('clusters_html_firewall', clusters_html, timeout=86400)
+                absolute_path = os.path.dirname(__file__)
+                full_path = absolute_path + "\\" + firewall_file.filename
+
+                # Format data to a dataframe
+                df = log2df(full_path)
+                df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
+                df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
+                logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
+
+                fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
+
+                Category_count, feature_count, detailed_information = results_by_Category(df)
+                df_other = detailed_information[0]
+                relative_path = r"react-app\public\static\firewall.json"
+                file_path = absolute_path + '\\' + relative_path
+                json_data = json.dumps(Category_count)
+                with open(file_path, 'w') as f:
+                    f.write(json_data)
+
+                # Table
+                trace_table = go.Table(
+                    header=dict(values=list(df.columns),
+                                align='left'),
+                    cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
+                               align='left'),
+                    domain=dict(x=[0, 0.45],
+                                y=[0, 1])
+                )
+
+                layout = dict(xaxis1=dict(dict(domain=[0.5, 1], anchor='y1')),
+                              yaxis1=dict(dict(domain=[0, 1], anchor='x1')),
+                              title='firewall Analysis')
+
+                fig = go.Figure(data=[trace_table, fig_bar], layout=layout)
+
+                trace_table4 = go.Table(
+                    header=dict(values=list(df_other.columns),
+                                align='left'),
+                    cells=dict(values=[df_other[k].tolist() for k in df_other.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout4 = dict(title='General information of other clusters')
+                fig4 = go.Figure(data=[trace_table4], layout=layout4)
+
+                fig_html = pio.to_html(fig, full_html=False)
+                other_analysis = pio.to_html(fig4, full_html=False)
+
+                cache.set('flag_firewall', True, timeout=86400)
+                cache.set('plot_firewall', fig_html, timeout=86400)
+                cache.set('log_count', df.shape[0], timeout=86400)
+                cache.set('feature_count', feature_count, timeout=86400)
+                cache.set('other_analysis', other_analysis, timeout=86400)
+
                 return render_template(
-                    "firewall.html", 
-                    name_firewall = file_name, 
-                    plot_firewall = fig_html,
-                    cluster_firewall = clusters_html)
+                    "firewall.html",
+                    name_firewall=firewall_file.filename,
+                    plot_firewall=fig_html,
+                    log_count=df.shape[0],
+                    feature_count=feature_count,
+                    other_analysis=other_analysis,
+                )
             except pd.errors.EmptyDataError:
                 return render_template("error.html", message="File is empty")
         else:
-            fig_html = cache.get('fig_html_firewall')
-            clusters_html = cache.get('clusters_html_firewall')
+            fig_html = cache.get('flag_dataload')
+            log_count = cache.get('log_count')
+            feature_count = cache.get('feature_count')
+            other_analysis = cache.get('other_analysis')
             return render_template(
-                    "firewall.html", 
-                    name_firewall = firewall_file.filename, 
-                    plot_firewall = fig_html,
-                    cluster_firewall = clusters_html)
+                "firewall.html",
+                name_firewall=firewall_file.filename,
+                plot_firewall=fig_html,
+                log_count=log_count,
+                feature_count=feature_count,
+                other_analysis=other_analysis,
+            )
     else:
         return render_template("error.html", message="No firewall file found")
+
 
 @app.route('/staging')
 def staging():
@@ -100,38 +284,126 @@ def staging():
         calculated = cache.get('flag_staging')
         if calculated is None:
             try:
-                file_name, fig_html, clusters_html = calculate(staging_file)
-                calculated = True
-                cache.set('flag_staging', calculated, timeout=86400)
-                cache.set('fig_html_staging', fig_html, timeout=86400)
-                cache.set('clusters_html_staging', clusters_html, timeout=86400)
+                absolute_path = os.path.dirname(__file__)
+                full_path = absolute_path + "\\" + staging_file.filename
+
+                # Format data to a dataframe
+                df = log2df(full_path)
+                df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
+                df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
+                logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
+
+                fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
+
+                Category_count, feature_count, detailed_information = results_by_Category(df)
+                df_e1, df_e2, df_other = detailed_information[0], detailed_information[1], detailed_information[2]
+                relative_path = "react-app\public\static\staging.json"
+                file_path = absolute_path + '\\' + relative_path
+                json_data = json.dumps(Category_count)
+                with open(file_path, 'w') as f:
+                    f.write(json_data)
+
+                # Table
+                trace_table = go.Table(
+                    header=dict(values=list(df.columns),
+                                align='left'),
+                    cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
+                               align='left'),
+                    domain=dict(x=[0, 0.45],
+                                y=[0, 1])
+                )
+
+                layout = dict(xaxis1=dict(dict(domain=[0.5, 1], anchor='y1')),
+                              yaxis1=dict(dict(domain=[0, 1], anchor='x1')),
+                              title='staging Analysis')
+
+                fig = go.Figure(data=[trace_table, fig_bar], layout=layout)
+
+                trace_table2 = go.Table(
+                    header=dict(values=list(df_e1.columns),
+                                align='left'),
+                    cells=dict(values=[df_e1[k].tolist() for k in df_e1.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout2 = dict(title='General information of success clusters')
+                fig2 = go.Figure(data=[trace_table2], layout=layout2)
+
+                trace_table3 = go.Table(
+                    header=dict(values=list(df_e2.columns),
+                                align='left'),
+                    cells=dict(values=[df_e2[k].tolist() for k in df_e2.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout3 = dict(title='General information of fail clusters')
+                fig3 = go.Figure(data=[trace_table3], layout=layout3)
+
+                trace_table4 = go.Table(
+                    header=dict(values=list(df_other.columns),
+                                align='left'),
+                    cells=dict(values=[df_other[k].tolist() for k in df_other.columns[0:]],
+                               align='left'),
+                    columnwidth=[80, 400, 600, 80])
+                layout4 = dict(title='General information of other clusters')
+                fig4 = go.Figure(data=[trace_table4], layout=layout4)
+
+                fig_html = pio.to_html(fig, full_html=False)
+                success_analysis = pio.to_html(fig2, full_html=False)
+                fail_analysis = pio.to_html(fig3, full_html=False)
+                other_analysis = pio.to_html(fig4, full_html=False)
+
+                cache.set('flag_staging', True, timeout=86400)
+                cache.set('plot_staging', fig_html, timeout=86400)
+                cache.set('log_count', df.shape[0], timeout=86400)
+                cache.set('feature_count', feature_count, timeout=86400)
+                cache.set('success_analysis', success_analysis, timeout=86400)
+                cache.set('fail_analysis', fail_analysis, timeout=86400)
+                cache.set('other_analysis', other_analysis, timeout=86400)
+
                 return render_template(
-                    "staging.html", 
-                    name_staging = file_name, 
-                    plot_staging= fig_html,
-                    cluster_staging = clusters_html)
+                    "staging.html",
+                    name_staging=staging_file.filename,
+                    plot_staging=fig_html,
+                    log_count=df.shape[0],
+                    feature_count=feature_count,
+                    success_analysis=success_analysis,
+                    fail_analysis=fail_analysis,
+                    other_analysis=other_analysis,
+                )
+
             except pd.errors.EmptyDataError:
                 return render_template("error.html", message="File is empty")
         else:
-            fig_html = cache.get('fig_html_staging')
-            clusters_html = cache.get('clusters_html_staging')
+            fig_html = cache.get('flag_dataload')
+            log_count = cache.get('log_count')
+            feature_count = cache.get('feature_count')
+            success_analysis = cache.get('success_analysis')
+            fail_analysis = cache.get('fail_analysis')
+            other_analysis = cache.get('other_analysis')
             return render_template(
-                    "staging.html", 
-                    name_staging = staging_file.filename, 
-                    plot_staging = fig_html,
-                    cluster_staging = clusters_html)
+                "dataload.html",
+                name_dataload=dataload_file.filename,
+                plot_dataload=fig_html,
+                log_count=log_count,
+                feature_count=feature_count,
+                success_analysis=success_analysis,
+                fail_analysis=fail_analysis,
+                other_analysis=other_analysis,
+            )
     else:
         return render_template("error.html", message="No staging file found")
+
 
 @app.route('/upload')
 def upload():
     return render_template('upload.html')
 
+
 @app.route('/login')
 def login():
     return render_template('login.html')
 
-@app.route('/success', methods = ['POST'])  
+
+@app.route('/success', methods=['POST'])
 def success():
     global uploaded_file
     global dataload_file
@@ -150,45 +422,11 @@ def success():
             elif 'firewall' in filename.lower():
                 firewall_file = request.files.get('file')
                 return redirect('/firewall')
+    print('meet error')
     return render_template("error.html", message="No file uploaded or unsupported file name.")
 
-def calculate(curr_file):
-    absolute_path = os.path.dirname(__file__)
-    full_path = absolute_path + "\\" + curr_file.filename
-
-    # Format data to a dataframe
-    df = log2df(full_path)
-    df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
-    df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
-    logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
-
-    fig_bar = go.Bar(x=logs_per_day["Episode Start Date"], y=logs_per_day["Count"], xaxis="x1", yaxis="y1")
-
-    clusters = cluster(df)
-
-    # Table
-    trace_table = go.Table(
-        header=dict(values=list(df.columns),
-        align='left'),
-        cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
-        align='left'),
-        domain=dict(x=[0, 0.45],
-        y=[0, 1])
-    )
-
-    layout = dict(xaxis1=dict( dict(domain=[0.5, 1], anchor='y1')),
-                yaxis1=dict( dict(domain=[0, 1], anchor='x1')),
-                title=f"{curr_file.filename} Analysis")
-
-    fig = go.Figure(data = [trace_table, fig_bar], layout = layout)
-
-    fig_html = pio.to_html(fig, full_html=False)
-    clusters_html = pio.to_html(clusters, full_html=False)
-
-    return(curr_file.filename, fig_html, clusters_html)
 
 def log2df(file_path):
-    global df_log
 
     def get_columns_from_file(filename):
         Columns = []
@@ -228,7 +466,8 @@ def log2df(file_path):
     df_log = pd.DataFrame([vars(obj) for obj in Episodes])
     return df_log
 
-def cluster(df_log):
+
+def getFeature(df):
     feature_type = []
 
     def modify_features(line):
@@ -240,10 +479,7 @@ def cluster(df_log):
                 feature_type.append(feature)
         return features
 
-    All_Feature = []
-    org_Feature = df_log["Features"]
-    for line in org_Feature:
-        All_Feature.append(modify_features(line))
+    All_Feature = [modify_features(line) for line in df["Features"]]
 
     df_feature = pd.DataFrame(columns=feature_type, index=list(range(len(All_Feature)))).fillna(0)
     for index, row in df_feature.iterrows():
@@ -251,8 +487,12 @@ def cluster(df_log):
         for key in feature_dic.keys():
             df_feature.loc[index, key] = feature_dic[key]
 
-    X = np.array(df_feature)
+    return df_feature
 
+
+def cluster(df_feature, df):
+    org_Feature = df["Features"]
+    X = np.array(df_feature)
     # get number of clusters and final model
     set_feature = len(set(org_Feature))
     overall = len(org_Feature)
@@ -269,58 +509,34 @@ def cluster(df_log):
             y_kmeans = model.predict(X)
             score.append(metrics.silhouette_score(X, y_kmeans, metric='euclidean'))
 
+        # plt.plot(list(range(2, set_feature + 1)), score)
         dif = np.diff(score)
 
         ar = []
         for i in range(len(dif) - 1):
-            if dif[i] / 2 > dif[i + 1] > dif[i] / 4:
+            if dif[i] / 2 > dif[i + 1] > dif[i] / 4 or 0 < dif[i] < 0.002:
                 ar.append(i)
-        mi = min(ar[0], len(dif) - ar[-1])
+        if ar:
+            mi = min(ar[0], len(dif) - ar[-1])
 
-        ma = 0
-        ind = 0
-        for index, item in enumerate(ar):
-            if score[item + mi] - score[item - mi] > ma:
-                ma = score[item + mi] - score[item - mi]
-                ind = index
-        best_num = ar[ind] + 1
-        best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
+            ma = 0
+            ind = 0
+            for index, item in enumerate(ar):
+                if score[item + mi] - score[item - mi] > ma:
+                    ma = score[item + mi] - score[item - mi]
+                    ind = index
+            best_num = ar[ind] + 1
+        else:
+            best_num = set_feature
+    best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
 
     # clustering model and results
     final_model = best_model.fit(X)
     y_gaus = final_model.predict(X)
 
-    # t-SNE
-    tsne = manifold.TSNE(n_components=2, init='pca', random_state=501)
-    X_tsne = tsne.fit_transform(X)
-    x_min, x_max = X_tsne.min(0), X_tsne.max(0)
-    X_norm = (X_tsne - x_min) / (x_max - x_min)  # normilization
+    df["Y_Gaussian"] = y_gaus
 
-    # fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(14, 5))
 
-    fig = make_subplots(rows=1, cols=2)
 
-    clusters = unique(y_gaus)
-    for cluster in clusters:
-        row_ix = where(y_gaus == cluster)
-        row_ix = list(row_ix[0])
-        df = pd.DataFrame(X_norm, columns = ['x', 'y'])
-        name = 'Cluster ' + str(cluster)
-        print(name)
-        fig.append_trace(go.Scatter(x=df[df.index.isin(row_ix)]['x'],
-                                         y=df[df.index.isin(row_ix)]['y'],
-                                         mode='markers',
-                                         name=name
-                                         ), row=1, col=2)
-
-    df_log["Y_Gaussian"] = y_gaus
-    data = df_log["Y_Gaussian"].value_counts()
-
-    fig_bar = go.Bar(x=data.index, y=data.values, name='Cluster')
-
-    fig.append_trace(fig_bar, row=1, col=1)
-    
-    return fig
-
-if __name__ == '__main__':  
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True, use_reloader=False)

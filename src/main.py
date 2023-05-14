@@ -26,7 +26,6 @@ staging_file = None
 def index():
     return render_template('index.html')
 
-
 def classify_features(features):
     if 'E1' in features and 'E2' not in features:
         return 'Success'
@@ -380,8 +379,8 @@ def staging():
             fail_analysis = cache.get('fail_analysis')
             other_analysis = cache.get('other_analysis')
             return render_template(
-                "dataload.html",
-                name_dataload=dataload_file.filename,
+                "staging.html",
+                name_dataload=staging_file.filename,
                 plot_dataload=fig_html,
                 log_count=log_count,
                 feature_count=feature_count,

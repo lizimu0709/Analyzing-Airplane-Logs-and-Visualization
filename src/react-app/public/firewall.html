@@ -41,7 +41,7 @@
         <script type="text/javascript">
             var json_data = null;
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', '{{ url_for('static', filename='firewall.json') }}', false);
+            xhr.open('GET', '{{ url_for("static", filename= "firewall.json") }}', false);
             xhr.onload = function() {
             if (xhr.status === 200) {
             json_data = JSON.parse(xhr.responseText);
@@ -94,5 +94,4 @@
             otherChart.setOption(otherOption);
         </script>
 
-        <div style="width: 100%; height: 100%; float: left; position: static;">{{plot_firewall | safe}}</div>
 {% endblock %}

@@ -558,7 +558,6 @@ def my_context_processor():
 def my_before_request():
 	user_id = session.get("user_id")
 	if user_id:
-		user = UserModel.query.get(user_id)
 		setattr(g, "user", user)
 	else:
 		setattr(g, "user", None)

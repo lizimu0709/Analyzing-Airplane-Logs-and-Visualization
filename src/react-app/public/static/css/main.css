@@ -98,7 +98,7 @@ p {
 }
 
 .container {
-  display: flex;
+  /*display: flex;*/
   flex-wrap: wrap;
   justify-content: left;
   align-items: left;

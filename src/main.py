@@ -42,9 +42,8 @@ def combine_by_cluster(df):
 	merged_df = df.groupby('Y_Gaussian').agg({
 		'Airplane Tail': lambda x: '+'.join(x),
 		'Features': lambda x: '+'.join(x),
-		'Category': lambda x: x.iloc[0]
 	})
-
+	merged_df = merged_df.assign(Count=df.groupby('Y_Gaussian')['Airplane Tail'].count())
 	merged_df = merged_df.reset_index().rename(columns={
 		'Airplane Tail': 'Airplane Tails',
 	})
@@ -82,7 +81,7 @@ def results_by_Category(df_log):
 def dataload():
 	global dataload_file
 	if dataload_file:
-		calculated = cache.get('flag_dataload')
+		calculated = cache.get('dataload_flag_dataload')
 		if calculated is None:
 			try:
 				absolute_path = os.path.dirname(__file__)
@@ -152,13 +151,13 @@ def dataload():
 				fail_analysis = pio.to_html(fig3, full_html=False)
 				other_analysis = pio.to_html(fig4, full_html=False)
 
-				cache.set('flag_dataload', True, timeout=86400)
-				cache.set('plot_dataload', fig_html, timeout=86400)
-				cache.set('log_count', df.shape[0], timeout=86400)
-				cache.set('feature_count', feature_count, timeout=86400)
-				cache.set('success_analysis', success_analysis, timeout=86400)
-				cache.set('fail_analysis', fail_analysis, timeout=86400)
-				cache.set('other_analysis', other_analysis, timeout=86400)
+				cache.set('dataload_flag_dataload', True, timeout=86400)
+				cache.set('dataload_plot_dataload', fig_html, timeout=86400)
+				cache.set('dataload_log_count', df.shape[0], timeout=86400)
+				cache.set('dataload_feature_count', feature_count, timeout=86400)
+				cache.set('dataload_success_analysis', success_analysis, timeout=86400)
+				cache.set('dataload_fail_analysis', fail_analysis, timeout=86400)
+				cache.set('dataload_other_analysis', other_analysis, timeout=86400)
 
 				return render_template(
 					"dataload.html",
@@ -173,12 +172,12 @@ def dataload():
 			except pd.errors.EmptyDataError:
 				return render_template("error.html", message="File is empty")
 		else:
-			fig_html = cache.get('flag_dataload')
-			log_count = cache.get('log_count')
-			feature_count = cache.get('feature_count')
-			success_analysis = cache.get('success_analysis')
-			fail_analysis = cache.get('fail_analysis')
-			other_analysis = cache.get('other_analysis')
+			fig_html = cache.get('dataload_plot_dataload')
+			log_count = cache.get('dataload_log_count')
+			feature_count = cache.get('dataload_feature_count')
+			success_analysis = cache.get('dataload_success_analysis')
+			fail_analysis = cache.get('dataload_fail_analysis')
+			other_analysis = cache.get('dataload_other_analysis')
 			return render_template(
 				"dataload.html",
 				name_dataload=dataload_file.filename,
@@ -197,7 +196,7 @@ def dataload():
 def firewall():
 	global firewall_file
 	if firewall_file:
-		calculated = cache.get('flag_firewall')
+		calculated = cache.get('firewall_flag_firewall')
 		if calculated is None:
 			try:
 				absolute_path = os.path.dirname(__file__)
@@ -247,11 +246,11 @@ def firewall():
 				fig_html = pio.to_html(fig, full_html=False)
 				other_analysis = pio.to_html(fig4, full_html=False)
 
-				cache.set('flag_firewall', True, timeout=86400)
-				cache.set('plot_firewall', fig_html, timeout=86400)
-				cache.set('log_count', df.shape[0], timeout=86400)
-				cache.set('feature_count', feature_count, timeout=86400)
-				cache.set('other_analysis', other_analysis, timeout=86400)
+				cache.set('firewall_flag_firewall', True, timeout=86400)
+				cache.set('firewall_plot_firewall', fig_html, timeout=86400)
+				cache.set('firewall_log_count', df.shape[0], timeout=86400)
+				cache.set('firewall_feature_count', feature_count, timeout=86400)
+				cache.set('firewall_other_analysis', other_analysis, timeout=86400)
 
 				return render_template(
 					"firewall.html",
@@ -264,10 +263,10 @@ def firewall():
 			except pd.errors.EmptyDataError:
 				return render_template("error.html", message="File is empty")
 		else:
-			fig_html = cache.get('flag_dataload')
-			log_count = cache.get('log_count')
-			feature_count = cache.get('feature_count')
-			other_analysis = cache.get('other_analysis')
+			fig_html = cache.get('firewall_flag_dataload')
+			log_count = cache.get('firewall_log_count')
+			feature_count = cache.get('firewall_feature_count')
+			other_analysis = cache.get('firewall_other_analysis')
 			return render_template(
 				"firewall.html",
 				name_firewall=firewall_file.filename,
@@ -284,7 +283,7 @@ def firewall():
 def staging():
 	global staging_file
 	if staging_file:
-		calculated = cache.get('flag_staging')
+		calculated = cache.get('staging_flag_staging')
 		if calculated is None:
 			try:
 				absolute_path = os.path.dirname(__file__)
@@ -354,13 +353,13 @@ def staging():
 				fail_analysis = pio.to_html(fig3, full_html=False)
 				other_analysis = pio.to_html(fig4, full_html=False)
 
-				cache.set('flag_staging', True, timeout=86400)
-				cache.set('plot_staging', fig_html, timeout=86400)
-				cache.set('log_count', df.shape[0], timeout=86400)
-				cache.set('feature_count', feature_count, timeout=86400)
-				cache.set('success_analysis', success_analysis, timeout=86400)
-				cache.set('fail_analysis', fail_analysis, timeout=86400)
-				cache.set('other_analysis', other_analysis, timeout=86400)
+				cache.set('staging_flag_staging', True, timeout=86400)
+				cache.set('staging_plot_staging', fig_html, timeout=86400)
+				cache.set('staging_log_count', df.shape[0], timeout=86400)
+				cache.set('staging_feature_count', feature_count, timeout=86400)
+				cache.set('staging_success_analysis', success_analysis, timeout=86400)
+				cache.set('staging_fail_analysis', fail_analysis, timeout=86400)
+				cache.set('staging_other_analysis', other_analysis, timeout=86400)
 
 				return render_template(
 					"staging.html",
@@ -376,12 +375,12 @@ def staging():
 			except pd.errors.EmptyDataError:
 				return render_template("error.html", message="File is empty")
 		else:
-			fig_html = cache.get('flag_dataload')
-			log_count = cache.get('log_count')
-			feature_count = cache.get('feature_count')
-			success_analysis = cache.get('success_analysis')
-			fail_analysis = cache.get('fail_analysis')
-			other_analysis = cache.get('other_analysis')
+			fig_html = cache.get('staging_flag_dataload')
+			log_count = cache.get('staging_log_count')
+			feature_count = cache.get('staging_feature_count')
+			success_analysis = cache.get('staging_success_analysis')
+			fail_analysis = cache.get('staging_fail_analysis')
+			other_analysis = cache.get('staging_other_analysis')
 			return render_template(
 				"staging.html",
 				name_dataload=staging_file.filename,

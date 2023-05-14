@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import json
 import plotly.io as pio
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session, g
 from flask_caching import Cache
 import plotly.graph_objects as go
 from flask_caching import Cache
@@ -11,10 +11,11 @@ from sklearn import metrics
 from sklearn.mixture import GaussianMixture
 import numpy as np
 from flask_restful import Api, Resource
+import pyrebase
 
 app = Flask(__name__, template_folder='react-app/public', static_folder='react-app/public/static')
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-
+app.secret_key = 'capstone_project'
 
 uploaded_file = None
 dataload_file = None
@@ -25,6 +26,7 @@ staging_file = None
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 def classify_features(features):
     if 'E1' in features and 'E2' not in features:
@@ -397,11 +399,6 @@ def upload():
     return render_template('upload.html')
 
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
-
 @app.route('/success', methods=['POST'])
 def success():
     global uploaded_file
@@ -535,6 +532,93 @@ def cluster(df_feature, df):
 
     df["Y_Gaussian"] = y_gaus
 
+
+cred = {
+	'apiKey': "AIzaSyAV6OrgXyST0l0om8I2TKcu1waF65Df68g",
+	'authDomain': "boeing-a5759.firebaseapp.com",
+	'projectId': "boeing-a5759",
+	'storageBucket': "boeing-a5759.appspot.com",
+	'messagingSenderId': "517543102347",
+	'appId': "1:517543102347:web:1fb464c7a84a496e46d18e",
+	'measurementId': "G-1F4FPN1FQC",
+	'databaseURL': ''
+}
+# firebase_admin.initialize_app(cred)
+firebase = pyrebase.initialize_app(cred)
+auth = firebase.auth()
+
+
+@app.context_processor
+def my_context_processor():
+	return {"user": session.get('user')}
+
+
+# hook
+@app.before_request
+def my_before_request():
+	user_id = session.get("user_id")
+	if user_id:
+		user = UserModel.query.get(user_id)
+		setattr(g, "user", user)
+	else:
+		setattr(g, "user", None)
+
+
+# Register function
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+	# if request.method == 'GET':
+	#     return render_template("register.html")
+	if request.method == 'POST':
+		email = request.form['email']
+		password = request.form['password']
+		try:
+			user = auth.create_user_with_email_and_password(email=email, password=password)
+			auth.send_email_verification(user['idToken'])
+			return {'message': 'User created successfully', 'status': 'success'}, 200
+		except Exception as e:
+			if 'EMAIL_EXISTS' in str(e):
+				return {'message': 'The email address is already in use.', 'status': 'error'}, 400
+			else:
+				return {'message': 'Error creating user', 'status': 'error'}, 400
+
+	return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if request.method == 'POST':
+		email = request.form.get('email')
+		password = request.form.get('password')
+		try:
+			user = auth.sign_in_with_email_and_password(email, password)
+			emailVerified = auth.get_account_info(user['idToken'])['users'][0]['emailVerified']
+			if not emailVerified:
+				return {'status': 'error', 'message': 'Please verify your email before logging in.'}, 400
+			# return redirect(url_for('login'))
+			else:
+				session['user'] = user  # store user info in session
+				setattr(g, "user", user)
+				with app.app_context():
+					cache.clear()
+				return {'status': 'success', 'message': 'Logged in successfully'}, 200
+		except Exception as e:
+			print(e)
+			if 'INVALID_EMAIL' or 'INVALID_PASSWORD' or 'EMAIL_NOT_FOUND' in str(e):
+				return {'message': 'Invalid credentials', 'status': 'error'}, 400
+			else:
+				return {'status': 'error', 'message': 'An error occurred: {}'.format(e)}, 500
+	else:
+		return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+	session.pop('user', None)
+	setattr(g, "user", None)
+	with app.app_context():
+		cache.clear()
+	return redirect('/')
 
 
 if __name__ == '__main__':

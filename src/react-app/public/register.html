@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px;
+        }
+
+        label {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 20px;
+            width: 300px;
+            font-size: 18px;
+        }
+        .container {
+            display: contents;
+            /*height: 100vh;*/
+        }
+
+
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            $("#register").click(function (e) {
+                e.preventDefault();
+                var email = $("#email").val();
+                var password = $("#password").val();
+                var confirmPassword = $("#confirm-password").val();
+                console.log(password, confirmPassword)
+                // Check if the two passwords are the same
+                if (password !== confirmPassword) {
+                    alert("The two passwords do not match");
+                    return;
+                }
+
+                // Check the password strength
+                if (password.length < 8) {
+                    alert("The password must be at least 8 characters long");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/register',
+                    data: {
+                        'email': email,
+                        'password': password
+                    },
+                    type: 'POST',
+                    success: function (response) {
+                        console.log(response)
+                        if (response.status === 'success') {
+                            window.location.href = '/login';
+                        } else {
+                            // alert(response.message);
+                        }
+                    },
+                    error: function (error) {
+                        alert(error.responseJSON.message);
+                        // $("#message").text(error.responseJSON.message);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center">
+        <form>
+            <div class="mb-3">
+                <label for="email">Email:</label>
+                <input id="email" type="email" name="email" class="form-control" placeholder="Email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password">Password:</label>
+                <input id="password" type="password" name="password" class="form-control" placeholder="Password"
+                       required>
+            </div>
+            <div class="mb-3">
+                <label for="confirm-password">Confirm Password:</label>
+                <input id="confirm-password" type="password" name="confirmPassword" class="form-control"
+                       placeholder="Confirm Password" required>
+            </div>
+            <button id="register" type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

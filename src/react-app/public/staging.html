@@ -3,13 +3,30 @@
 {% block head %}
     <title>Staging</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/dist/echarts.min.js"></script>
+    <style>
+        .highlight {
+            background-color: #f2f2f2;
+            padding: 5px;
+            display: inline-block;
+        }
+
+        .all-events {
+            font-size: 16px;
+        }
+
+        .log-count {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
 	<div class="success">
 	<p>File uploaded successfully</p>
-	<p>File Name: {{name_staging}}</p>
-    <p>Num of logs: {{log_count}}</p>
+    <p><span class="highlight all-events">File Name</span><span class="highlight log-count">{{name_staging}}</span></p>
+    <p><span class="highlight all-events">Log Numbers:</span><span class="highlight log-count">{{log_count}}</span></p>
 
 	</div>
 

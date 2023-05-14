@@ -2,53 +2,183 @@
 
 {% block head %}
     <title>Log Analysis Program</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+  
+      header {
+              background-color: #4b2e83;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        margin-top: 56px;
+      }
+  
+      h1 {
+        font-size: 2em;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+  
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 20px;
+      }
+  
+      .member {
+        border: 1px solid #ccc;
+        margin: 10px;
+        padding: 10px;
+        width: 300px;
+      }
+  
+      h2 {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      #team2 {
+        display: flex;
+        flex-direction: column;
+        /* align-items: center; */
+        text-align: left;
+      }
+
+      #team2 h1{
+        font-size: 2em;
+        text-align: center;
+      };
+      #team2 p 
+
+      p {
+        margin-bottom: 10px;
+      }
+  
+      .star {
+        color: #F9A825;
+        font-weight: bold;
+      }
+  
+      img {
+        display: block;
+        margin: auto;
+        max-width: 100%;
+        height: auto;
+      }
+  
+          .team-container {
+              max-width: 1000px;
+              margin: 0 auto;
+              padding: 20px;
+          }
+  
+          .team-row {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              grid-gap: 20px;
+              margin-top: 20px;
+          }
+  
+          .team-member {
+              text-align: center;
+          }
+  
+          .team-member img {
+              width: 200px;
+              height: 200px;
+              border-radius: 50%;
+              margin-bottom: 10px;
+          }
+  
+          .team-member h2 {
+              font-size: 1.5em;
+              margin-bottom: 5px;
+          }
+  
+          .team-member p {
+              margin: 0;
+          }
+  
+    </style>
 {% endblock %}
 
 {% block body %}
-    <header>
-            <h1>About the Team</h1>
-        </header>
-    <main class="container">
-            <section class="summary">
-              <h2>Project Summary</h2>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec quis ipsum tincidunt, lobortis magna vel, aliquet orci. Nulla facilisi. Donec at tincidunt ipsum, eu facilisis ipsum. Sed ac gravida metus. Aliquam tincidunt auctor nunc, vel interdum elit pharetra nec.</p>
-            </section>
-            <section class="container">
-              <h2>Meet the Team</h2>
-              <div class="team">
-                <div class="member">
-                  <img src="{{ url_for('static', filename='linkedin-no-picture-avatar.png') }}" alt="Team Member 1" />
-                  <h3>John Doe</h3>
-                  <p>Role: Project Manager</p>
-                </div>
-                <div class="member">
-                  <img src="{{ url_for('static', filename='linkedin-no-picture-avatar.png') }}" alt="Team Member 2" />
-                  <h3>Jane Smith</h3>
-                  <p>Role: Designer</p>
-                </div>
-                <div class="member">
-                  <img src="{{ url_for('static', filename='linkedin-no-picture-avatar.png') }}" alt="Team Member 3" />
-                  <h3>Mark Johnson</h3>
-                  <p>Role: Developer</p>
-                </div>
-                <div class="member">
-                  <img src="{{ url_for('static', filename='linkedin-no-picture-avatar.png') }}" alt="Team Member 4" />
-                  <h3>Sara Lee</h3>
-                  <p>Role: Marketing</p>
-                </div>
-                <div class="member">
-                  <img src="{{ url_for('static', filename='linkedin-no-picture-avatar.png') }}" alt="Team Member 5" />
-                  <h3>Michael Brown</h3>
-                  <p>Role: Data Analyst</p>
-                </div>
-                <div class="member">
-                  <img src="{{ url_for('static', filename='linkedin-no-picture-avatar.png') }}" alt="Team Member 6" />
-                  <h3>Amy Taylor</h3>
-                  <p>Role: Tester</p>
-                </div>
-              </div>
-            </section>
-    </main>
+<header>
+  <h1>Analyzing Airplane System and Security Logs for Context Awareness</h1>
+  <p>Meet the team behind our success.</p>
+</header>
+
+<section id="team1">
+  <div class="team-container">
+          <h1>Team Members</h1>
+          <div class="team-row">
+            <div class="team-member">
+              <img src="static/Zimu Li.jpg">
+              <h2>Zimu Li</h2>
+              <p>Product Engineer/Front-end Engineer</p>
+              <p>Email: john.doe@example.com</p>
+              <p>Responsibilities: Lorem ipsum dolor sit amet</p>
+            </div>
+            <div class="team-member">
+              <img src="static/Chengzhi Xu.jpg">
+              <h2>Chengzhi Xu</h2>
+              <p>Back-end Engineer</p>
+              <p>Email: jane.smith@example.com</p>
+              <p>Responsibilities: Lorem ipsum dolor sit amet</p>
+            </div>
+            <div class="team-member">
+              <img src="static/Ziyang Gong.jpg">
+              <h2>Ziyang Gong</h2>
+              <p>Machine Learning Engineer</p>
+              <p>Email: bob.johnson@example.com</p>
+              <p>Responsibilities: Lorem ipsum dolor sit amet</p>
+            </div>
+          </div>
+          <div class="team-row">
+            <div class="team-member">
+              <img src="static/Nam Nguyen.jpg">
+              <h2>Nam Nguyen</h2>
+              <p>Front-end Engineer</p>
+              <p>Email: sara.lee@example.com</p>
+              <p>Responsibilities: Lorem ipsum dolor sit amet</p>
+            </div>
+            <div class="team-member">
+              <img src="static/Jiaming Zhang.jpg">
+              <h2>Jiaming Zhang</h2>
+              <p>Back-end Engineer</p>
+              <p>Email: tom.brown@example.com</p>
+              <p>Responsibilities: Lorem ipsum dolor sit amet</p>
+            </div>
+            <div class="team-member">
+              <img src="static/Steve Su.jpg">
+              <h2>Steve Su</h2>
+              <p>Designer</p>
+              <p>Email: emily.davis@example.com</p>
+              <p>Responsibilities: Lorem ipsum dolor sit amet</p>
+            </div>
+          </div>
+        </div>          
+</section>
+
+  <section id="team2">
+      <h1>The Capstone Project</h1>
+      <img src="static/Intro.png" width="800px">
+      <img src="static/UseCase2.png" width="800px">
+      <p>We </p>
+  </section>
+
+  <section id="team2">
+    <h1>Acknowledgment</h1>
+    <p>We would like to express our sincere gratitude to <span style="font-weight: bold;">Dave Mier</span>, <span style="font-weight: bold;">Emily Zhang</span>, and <span style="font-weight: bold;">Rafka Daou</span> from <span style="font-weight: bold;">Boeing</span> for their invaluable guidance and support throughout the project. Their expertise and insights were instrumental in the successful completion of this endeavor. We would also like to extend our appreciation to <span style="font-weight: bold;">Radha Poovendran</span>, our faculty advisor from the UW ECE (Electrical and Computer Engineering) department, for his guidance and mentorship. His expertise in the field of cybersecurity greatly contributed to the project's success. Furthermore, we would like to thank our TA <span style="font-weight: bold;">Harsha Vardhan</span> and <span style="font-weight: bold;">Dinuka Sahabandu</span>, for providing valuable assistance and insights into the algorithms related to log analysis. We are immensely grateful to the <span style="font-weight: bold;">UW ECE department</span> and the entire team for their continuous support and encouragement during this project.</p>
+  </section>
+
+
 {% endblock %}
 
 

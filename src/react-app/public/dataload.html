@@ -35,8 +35,8 @@
         // read json data
         var json_data = null;
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '{{ url_for('static', filename='dataload.json') }}', false);
-        xhr.onload = function() {
+        xhr.open('GET', '{{ url_for("static", filename= "dataload.json") }}', false);
+        xhr.onload = function() {r
             if (xhr.status === 200) {
                 json_data = JSON.parse(xhr.responseText);
             }

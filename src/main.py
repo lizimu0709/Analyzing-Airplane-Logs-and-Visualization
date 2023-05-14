@@ -98,7 +98,7 @@ def dataload():
 
 				Category_count, feature_count, detailed_information = results_by_Category(df)
 				df_e1, df_e2, df_other = detailed_information[0], detailed_information[1], detailed_information[2]
-				relative_path = os.path.join("react-app", "public", "static", "firewall.json")
+				relative_path = os.path.join("react-app", "public", "static", "dataload.json")
 
 				file_path = os.path.join(absolute_path, relative_path)
 				json_data = json.dumps(Category_count)

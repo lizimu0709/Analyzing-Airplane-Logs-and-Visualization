@@ -17,7 +17,6 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.secret_key = 'capstone_project'
 
 
-
 @app.route('/')
 def index():
 	return render_template('index.html')
@@ -77,11 +76,12 @@ def results_by_Category(df_log):
 	return Category_count, feature_count, detailed_information
 
 
-@app.route('/dataload/<string:filename>')
+@app.route('/dataload')
 @cache.memoize()
-def dataload(filename):
+def dataload():
 	user = session.get('user')
-	if filename and 'dataload' in filename.lower() and user:
+	filename = session.get('dataload_filename')
+	if filename and user:
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -161,17 +161,17 @@ def dataload(filename):
 				other_analysis=other_analysis,
 			)
 		except pd.errors.EmptyDataError:
-			return redirect(url_for('err', message="File is empty"))
-
+			return render_template("error.html", message="File is empty")
 	else:
-		return redirect(url_for('err', message="No dataload file found"))
+		return render_template("error.html", message="No dataload file found")
 
 
-@app.route('/firewall/<string:filename>')
+@app.route('/firewall')
 @cache.memoize()
-def firewall(filename):
+def firewall():
 	user = session.get('user')
-	if filename and 'firewall' in filename.lower() and user:
+	filename = session.get('firewall_filename')
+	if filename and user:
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -229,17 +229,18 @@ def firewall(filename):
 				other_analysis=other_analysis,
 			)
 		except pd.errors.EmptyDataError:
-			return redirect(url_for('err', message="File is empty"))
+			return render_template("error.html", message="File is empty")
 
 	else:
-		return redirect(url_for('err', message="No firewall file found"))
+		return render_template("error.html", message="No firewall file found")
 
 
-@app.route('/staging/<string:filename>')
+@app.route('/staging')
 @cache.memoize()
-def staging(filename):
+def staging():
 	user = session.get('user')
-	if filename and 'staging' in filename.lower() and user:
+	filename = session.get('staging_filename')
+	if filename and user:
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -320,10 +321,10 @@ def staging(filename):
 			)
 
 		except pd.errors.EmptyDataError:
-			return redirect(url_for('err', message="File is empty"))
+			return render_template("error.html", message="File is empty")
 
 	else:
-		return redirect(url_for('err', message="No staging file found"))
+		return render_template("error.html", message="No staging file found")
 
 
 @app.route('/upload')
@@ -339,26 +340,21 @@ def success():
 			filename = uploaded_file.filename
 			file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 			uploaded_file.save(file_path)
-			cache.delete_memoized(err)
 			if 'dataload' in filename.lower():
-				cache.delete_memoized(dataload)
 				session['dataload_filename'] = filename
-				return redirect(url_for('dataload', filename=filename))
+				cache.delete_memoized(dataload)
+				return redirect('/dataload')
 			elif 'staging' in filename.lower():
-				cache.delete_memoized(staging)
 				session['staging_filename'] = filename
-				return redirect(url_for('staging', filename=filename))
+				cache.delete_memoized(staging)
+				return redirect('/staging')
 			elif 'firewall' in filename.lower():
-				cache.delete_memoized(firewall)
 				session['firewall_filename'] = filename
-				return redirect(url_for('firewall', filename=filename))
+				cache.delete_memoized(firewall)
+				return redirect('/firewall')
 
-	return redirect(url_for('err', message="No file uploaded or unsupported file name."))
+	return render_template("error.html", message="No file uploaded or unsupported file name.")
 
-
-@app.route('/err/<message>')
-def err(message):
-	return render_template("error.html", message=message)
 
 def log2df(file_path):
 	def get_columns_from_file(filename):
@@ -487,24 +483,16 @@ auth = firebase.auth()
 
 @app.context_processor
 def my_context_processor():
-	return {"user": session.get('user'),
-			"dataload_filename": session.get('dataload_filename'),
-			"staging_filename": session.get('staging_filename'),
-			"firewall_filename": session.get('firewall_filename')}
+	return {"user": session.get('user')}
 
 
 # hook
 @app.before_request
 def my_before_request():
-	if 'dataload_filename' not in session:
-		session['dataload_filename'] = 'nothing'
-	if 'staging_filename' not in session:
-		session['staging_filename'] = 'nothing'
-	if 'firewall_filename' not in session:
-		session['firewall_filename'] = 'nothing'
-
-	user_id = session.get("user_id")
-	if not user_id:
+	user = session.get("user")
+	if user:
+		setattr(g, "user", user)
+	else:
 		setattr(g, "user", None)
 
 
@@ -542,7 +530,7 @@ def login():
 			# return redirect(url_for('login'))
 			else:
 				session['user'] = user  # store user info in session
-				setattr(g, "user", user)
+				# setattr(g, "user", user)
 				cache.clear()
 				return {'status': 'success', 'message': 'Logged in successfully'}, 200
 		except Exception as e:
@@ -560,6 +548,14 @@ def logout():
 	session.clear()
 	setattr(g, "user", None)
 	cache.clear()
+
+	# delete uploaded files
+	files = os.listdir(app.config['UPLOAD_FOLDER'])
+	for file in files:
+		file_path = os.path.join(app.config['UPLOAD_FOLDER'], file)
+		if os.path.isfile(file_path):
+			os.remove(file_path)
+
 	return redirect('/')
 
 

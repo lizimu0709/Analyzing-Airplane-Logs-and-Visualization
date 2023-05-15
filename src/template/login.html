@@ -168,9 +168,9 @@
     <nav>
         <ul style="position: fixed; z-index: 1000;">
             <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('dataload', filename=dataload_filename or 'None') }}">Dataload</a></li>
-            <li><a href="{{ url_for('firewall', filename=firewall_filename or 'None') }}">Firewall</a></li>
-            <li><a href="{{ url_for('staging', filename=staging_filename or 'None') }}">Staging</a></li>
+            <li><a href="{{ url_for('dataload') }}">Dataload</a></li>
+            <li><a href="{{ url_for('firewall') }}">Firewall</a></li>
+            <li><a href="{{ url_for('staging') }}">Staging</a></li>
             <!--            <li class="navbar-right"><a href="{{ url_for('upload') }}">Upload</a></li>-->
             {% if user %}
             <li class="navbar-right"><a href="{{ url_for('upload') }}">Upload</a></li>

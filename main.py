@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import json
 import plotly.io as pio
-from flask import Flask, render_template, request, redirect, session, g
+from flask import Flask, render_template, request, redirect, session, g, url_for
 from flask_caching import Cache
 import plotly.graph_objects as go
 from collections import Counter
@@ -15,6 +15,7 @@ import pyrebase
 app = Flask(__name__, template_folder='src/template', static_folder='src/static')
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.secret_key = 'capstone_project'
+
 
 
 @app.route('/')
@@ -76,12 +77,11 @@ def results_by_Category(df_log):
 	return Category_count, feature_count, detailed_information
 
 
-@app.route('/dataload')
-@cache.cached(timeout=86400)
-def dataload():
+@app.route('/dataload/<string:filename>')
+@cache.memoize()
+def dataload(filename):
 	user = session.get('user')
-	filename = session.get('dataload_filename')
-	if filename and user:
+	if filename and 'dataload' in filename.lower() and user:
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -161,17 +161,17 @@ def dataload():
 				other_analysis=other_analysis,
 			)
 		except pd.errors.EmptyDataError:
-			return render_template("error.html", message="File is empty")
+			return redirect(url_for('err', message="File is empty"))
+
 	else:
-		return render_template("error.html", message="No dataload file found")
+		return redirect(url_for('err', message="No dataload file found"))
 
 
-@app.route('/firewall')
-@cache.cached(timeout=86400)
-def firewall():
+@app.route('/firewall/<string:filename>')
+@cache.memoize()
+def firewall(filename):
 	user = session.get('user')
-	filename = session.get('firewall_filename')
-	if filename and user:
+	if filename and 'firewall' in filename.lower() and user:
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -229,18 +229,17 @@ def firewall():
 				other_analysis=other_analysis,
 			)
 		except pd.errors.EmptyDataError:
-			return render_template("error.html", message="File is empty")
+			return redirect(url_for('err', message="File is empty"))
 
 	else:
-		return render_template("error.html", message="No firewall file found")
+		return redirect(url_for('err', message="No firewall file found"))
 
 
-@app.route('/staging')
-@cache.cached(timeout=86400)
-def staging():
+@app.route('/staging/<string:filename>')
+@cache.memoize()
+def staging(filename):
 	user = session.get('user')
-	filename = session.get('staging_filename')
-	if filename and user:
+	if filename and 'staging' in filename.lower() and user:
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -321,10 +320,10 @@ def staging():
 			)
 
 		except pd.errors.EmptyDataError:
-			return render_template("error.html", message="File is empty")
+			return redirect(url_for('err', message="File is empty"))
 
 	else:
-		return render_template("error.html", message="No staging file found")
+		return redirect(url_for('err', message="No staging file found"))
 
 
 @app.route('/upload')
@@ -340,19 +339,26 @@ def success():
 			filename = uploaded_file.filename
 			file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 			uploaded_file.save(file_path)
-			cache.clear()
+			cache.delete_memoized(err)
 			if 'dataload' in filename.lower():
+				cache.delete_memoized(dataload)
 				session['dataload_filename'] = filename
-				return redirect('/dataload')
+				return redirect(url_for('dataload', filename=filename))
 			elif 'staging' in filename.lower():
+				cache.delete_memoized(staging)
 				session['staging_filename'] = filename
-				return redirect('/staging')
+				return redirect(url_for('staging', filename=filename))
 			elif 'firewall' in filename.lower():
+				cache.delete_memoized(firewall)
 				session['firewall_filename'] = filename
-				return redirect('/firewall')
+				return redirect(url_for('firewall', filename=filename))
 
-	return render_template("error.html", message="No file uploaded or unsupported file name.")
+	return redirect(url_for('err', message="No file uploaded or unsupported file name."))
 
+
+@app.route('/err/<message>')
+def err(message):
+	return render_template("error.html", message=message)
 
 def log2df(file_path):
 	def get_columns_from_file(filename):
@@ -481,16 +487,24 @@ auth = firebase.auth()
 
 @app.context_processor
 def my_context_processor():
-	return {"user": session.get('user')}
+	return {"user": session.get('user'),
+			"dataload_filename": session.get('dataload_filename'),
+			"staging_filename": session.get('staging_filename'),
+			"firewall_filename": session.get('firewall_filename')}
 
 
 # hook
 @app.before_request
 def my_before_request():
+	if 'dataload_filename' not in session:
+		session['dataload_filename'] = 'nothing'
+	if 'staging_filename' not in session:
+		session['staging_filename'] = 'nothing'
+	if 'firewall_filename' not in session:
+		session['firewall_filename'] = 'nothing'
+
 	user_id = session.get("user_id")
-	if user_id:
-		setattr(g, "user", user)
-	else:
+	if not user_id:
 		setattr(g, "user", None)
 
 

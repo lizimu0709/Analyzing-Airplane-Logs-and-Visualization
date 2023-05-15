@@ -172,9 +172,9 @@
     <nav>
         <ul style="position: fixed; z-index: 1000;">
             <li><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('dataload') }}">Dataload</a></li>
-            <li><a href="{{ url_for('firewall') }}">Firewall</a></li>
-            <li><a href="{{ url_for('staging') }}">Staging</a></li>
+            <li><a href="{{ url_for('dataload', filename=dataload_filename or 'None') }}">Dataload</a></li>
+            <li><a href="{{ url_for('firewall', filename=firewall_filename or 'None') }}">Firewall</a></li>
+            <li><a href="{{ url_for('staging', filename=staging_filename or 'None') }}">Staging</a></li>
             <!--            <li class="navbar-right"><a href="{{ url_for('upload') }}">Upload</a></li>-->
             {% if user %}
             <li class="navbar-right"><a href="{{ url_for('upload') }}">Upload</a></li>
@@ -218,9 +218,9 @@
     </div>
     <div class="footer"
          style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; width: 100%; margin-bottom: 2px; position: absolute;bottom:0">
-        <img src="{{ url_for('static', filename='ece-logo.png') }}" alt="UW ECE" style="max-width: 400px;float: left">
+        <img src="{{ url_for('static', filename='images/ece-logo.png') }}" alt="UW ECE" style="max-width: 400px;float: left">
         <div style="text-align: center">© 2023 Boeing Team. All rights reserved.</div>
-        <img src="{{ url_for('static', filename='Boeing_full_logo.svg.png') }}" alt="Boeing"
+        <img src="{{ url_for('static', filename='images/Boeing_full_logo.svg.png') }}" alt="Boeing"
              style="max-width: 400px;float: right;">
     </div>
 </div>

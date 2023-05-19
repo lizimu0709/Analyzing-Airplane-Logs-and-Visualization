@@ -11,7 +11,7 @@
         }
 
         .all-events {
-            font-size: 16px;
+            font-size: 24px;
         }
 
         .log-count {
@@ -26,11 +26,11 @@
 
 	<div class="success">
         <p>File uploaded successfully</p>
-        <p><span class="highlight all-events">File Name</span><span class="highlight log-count">{{name_dataload}}</span></p>
-        <p><span class="highlight all-events">Log Numbers:</span><span class="highlight log-count">{{log_count}}</span></p>
+        <p><span class="highlight all-events">File Name:</span><span class="highlight log-count">{{name_dataload}}</span></p>
+        <p><span class="highlight all-events">Number of Events:</span><span class="highlight log-count">{{log_count}}</span></p>
 	</div>
 
-    <div id="pie-chart" style="width: 70%; height: 500px; float: left;"></div>
+    <div id="pie-chart" style="width: 40%; height: 500px; float: left;"></div>
     <script type="text/javascript">
         // read json data
         var json_data = null;
@@ -73,7 +73,7 @@
                     avoidLabelOverlap: false,
                     label: {
                         show: false,
-                        position: 'center'
+                        position: 'left'
                     },
                     emphasis: {
                         label: {
@@ -96,28 +96,30 @@
         pieChart.setOption(pieOption);
     </script>
 
+    <div style="width: 60%; height: 100%; float: right; position: static;">{{plot_dataload | safe}}</div>
+
     <div id="container">
         <div id="success-chart" style="width: 50%; height: 400px; float: left;"></div>
-        <div style="width: 50%; float: left;"> Features and their frequencies</div>
-        <div style="width: 50%; float: left;"> high freq: <br>{{ feature_count['Success']['high'][0] }} <br> {{ feature_count['Success']['high'][1] }} </div>
-        <div style="width: 50%; float: left;"> low freq: <br>{{ feature_count['Success']['low'][0] }} <br> {{ feature_count['Success']['low'][1] }} </div>
-        <div style="width: 100%; height: 100%; float: right; position: static;"> {{ success_analysis | safe }}</div>
+        <div style="width: 50%; float: left; font-family: system-ui; font-weight: bold; margin-top: 100px;"> Notable Features</div>
+        <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> High Frequency: <br>{{ feature_count['Success']['high'][0] }} <br> {{ feature_count['Success']['high'][1] }} </div>
+        <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> Low Frequency: <br>{{ feature_count['Success']['low'][0] }} <br> {{ feature_count['Success']['low'][1] }} </div>
+        <div style="width: 100%; height: 100%; float: right; position: static; font-family: system-ui; margin-top: 20px;"> {{ success_analysis | safe }}</div>
     </div>
 
     <div id="container">
         <div id="fail-chart" style="width: 50%; height: 400px; float: left;"></div>
-        <div style="width: 50%; float: left;"> Features and their frequencies</div>
-        <div style="width: 50%; float: left;"> high freq: <br>{{ feature_count['Fail']['high'][0] }} <br> {{ feature_count['Fail']['high'][1] }} </div>
-        <div style="width: 50%; float: left;"> low freq: <br>{{ feature_count['Fail']['low'][0] }} <br> {{ feature_count['Fail']['low'][1] }} </div>
-        <div style="width: 100%; height: 100%; float: right; position: static;"> {{ fail_analysis | safe }}</div>
+        <div style="width: 50%; float: left; font-family: system-ui; font-weight: bold; margin-top: 100px;"> Notable Features</div>
+        <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> High Frequency: <br>{{ feature_count['Fail']['high'][0] }} <br> {{ feature_count['Fail']['high'][1] }} </div>
+        <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> Low Frequency: <br>{{ feature_count['Fail']['low'][0] }} <br> {{ feature_count['Fail']['low'][1] }} </div>
+        <div style="width: 100%; height: 100%; float: right; position: static; font-family: system-ui; margin-top: 20px;"> {{ fail_analysis | safe }}</div>
     </div>
 
     <div id="container">
         <div id="other-chart" style="width: 50%; height: 400px; float: left;"></div>
-        <div style="width: 50%; float: left;"> Features and their frequencies</div>
-        <div style="width: 50%; float: left;"> high freq: <br>{{ feature_count['Other']['high'][0] }} <br> {{ feature_count['Other']['high'][1] }} </div>
-        <div style="width: 50%; float: left;"> low freq: <br>{{ feature_count['Other']['low'][0] }} <br> {{ feature_count['Other']['low'][1] }} </div>
-        <div style="width: 100%; height: 100%; float: right; position: static;"> {{ other_analysis | safe }}</div>
+        <div style="width: 50%; float: left; font-family: system-ui; font-weight: bold; margin-top: 100px;"> Notable Features</div>
+        <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> High Frequency: <br>{{ feature_count['Other']['high'][0] }} <br> {{ feature_count['Other']['high'][1] }} </div>
+        <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> Low Frequency: <br>{{ feature_count['Other']['low'][0] }} <br> {{ feature_count['Other']['low'][1] }} </div>
+        <div style="width: 100%; height: 100%; float: right; position: static; font-family: system-ui; margin-top: 20px;"> {{ other_analysis | safe }}</div>
     </div>
 
     <script type="text/javascript">
@@ -263,7 +265,5 @@
     };
         otherChart.setOption(otherOption);
     </script>
-<div style="width: 100%; height: 100%; float: left; position: static;">{{plot_dataload | safe}}</div>
+
 {% endblock %}
-
-

@@ -217,11 +217,9 @@
         </form>
     </div>
     <div class="footer"
-         style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; width: 100%; margin-bottom: 2px; position: absolute;bottom:0">
-        <img src="{{ url_for('static', filename='images/ece-logo.png') }}" alt="UW ECE" style="max-width: 400px;float: left">
-        <div style="text-align: center">© 2023 Boeing Team. All rights reserved.</div>
-        <img src="{{ url_for('static', filename='images/Boeing_full_logo.svg.png') }}" alt="Boeing"
-             style="max-width: 400px;float: right;">
+        style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; width: 100%; height: 110px; position: absolute; bottom: 0;">
+        <img src="{{ url_for('static', filename='images/ece-logo.png') }}" alt="UW ECE" style="max-width: 400px; float: left; position: absolute; bottom: 0;">
+        <div style="text-align: center; flex-grow: 1;">© 2023 Boeing Team. All rights reserved.</div>
     </div>
 </div>
 </body>

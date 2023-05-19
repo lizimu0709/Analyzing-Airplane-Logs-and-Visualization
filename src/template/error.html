@@ -1,27 +1,64 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+        <title>Error</title>
+    </head>
 
+    <nav>
+        <ul style="position: fixed; z-index: 1000;">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('dataload') }}">Dataload</a></li>
+            <li><a href="{{ url_for('firewall') }}">Firewall</a></li>
+            <li><a href="{{ url_for('staging') }}">Staging</a></li>
+            <!--            <li class="navbar-right"><a href="{{ url_for('upload') }}">Upload</a></li>-->
+            {% if user %}
+            <li class="navbar-right"><a href="{{ url_for('upload') }}">Upload</a></li>
+            <li class="navbar-right">
+                <a class="link" href="{{ url_for('index') }}">{{ user['email'] }}</a>
+            </li>
+            <li class="navbar-right">
+                <a class="link" href="{{ url_for('logout') }}">Logout</a>
+            </li>
+            {% else %}
+            <li class="navbar-right">
+                <a href="{{ url_for('login') }}">Upload</a>
+            </li>
+            <li class="navbar-right">
+                <a class="link" href="{{ url_for('login') }}">Login</a>
+            </li>
+            <li class="navbar-right">
+                <a class="link" href="{{ url_for('register') }}">Register</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
 
-{% block head %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    </style>
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-<style>
-   .container {
-       display: flex;
-       justify-content: center;
-       align-items: center;
-       height: 100vh;
-   }
-</style>
-{% endblock %}
-{% block body %}
-<body>
-	<div class="container my-5">
-	<div class="alert alert-danger" role="alert">
-		<h4 class="alert-heading">Error</h4>
-		<p>{{ message }}</p>
-	</div>
-	</div>
-
-</body>
-
-{% endblock %}
+    <body>
+        <div class="container my-5">
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error</h4>
+            <p>{{ message }}</p>
+        </div>
+        </div>
+        <div class="footer">
+            <div style="display: flex; justify-content: center;"></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <img src="{{ url_for('static', filename='images/ece-logo.png') }}" alt="UW ECE" style="max-width: 400px;">
+                <p id="copyright">© 2023 Boeing Team. All rights reserved.</p>
+        </div>
+    </body>
+</html>

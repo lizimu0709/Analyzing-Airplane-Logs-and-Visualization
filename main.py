@@ -11,6 +11,7 @@ from sklearn.mixture import GaussianMixture
 import numpy as np
 from flask_restful import Api, Resource
 import pyrebase
+from plotly.subplots import make_subplots
 
 app = Flask(__name__, template_folder='src/template', static_folder='src/static')
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
@@ -108,13 +109,17 @@ def dataload():
 				            align='left'),
 				cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
 				           align='left'),
-				domain=dict(x=[0, 0.45],
-				            y=[0, 1])
+				domain=dict(x=[0, 1],
+				            y=[0, 0.45])
 			)
 
-			layout = dict(xaxis1=dict(dict(domain=[0.5, 1], anchor='y1')),
-			              yaxis1=dict(dict(domain=[0, 1], anchor='x1')),
-			              title='Dataload Analysis')
+			layout = dict(
+						xaxis1=dict(domain=[0, 1], anchor='y1'),
+						yaxis1=dict(domain=[0.5, 1], anchor='x1'),
+						xaxis2=dict(domain=[0, 1], anchor='y2'),
+						yaxis2=dict(domain=[0, 0.5], anchor='x2'),
+						title='Logs per Day'
+						)
 			fig = go.Figure(data=[trace_table, fig_bar], layout=layout)
 
 			trace_table2 = go.Table(
@@ -144,7 +149,7 @@ def dataload():
 			layout4 = dict(title='General information of other clusters')
 			fig4 = go.Figure(data=[trace_table4], layout=layout4)
 
-			fig_html = pio.to_html(fig, full_html=False)
+			fig_html = pio.to_html(fig, full_html=False, default_height='600px')
 			success_analysis = pio.to_html(fig2, full_html=False)
 			fail_analysis = pio.to_html(fig3, full_html=False)
 			other_analysis = pio.to_html(fig4, full_html=False)
@@ -203,7 +208,7 @@ def firewall():
 
 			layout = dict(xaxis1=dict(dict(domain=[0.5, 1], anchor='y1')),
 			              yaxis1=dict(dict(domain=[0, 1], anchor='x1')),
-			              title='firewall Analysis')
+			              title='Firewall Analysis')
 
 			fig = go.Figure(data=[trace_table, fig_bar], layout=layout)
 
@@ -244,7 +249,6 @@ def staging():
 		try:
 			absolute_path = os.path.dirname(__file__)
 			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
 			# Format data to a dataframe
 			df = log2df(full_path)
 			df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
@@ -256,6 +260,7 @@ def staging():
 			Category_count, feature_count, detailed_information = results_by_Category(df)
 			df_e1, df_e2, df_other = detailed_information[0], detailed_information[1], detailed_information[2]
 			relative_path = os.path.join("src", "static", "staging.json")
+
 			file_path = os.path.join(absolute_path, relative_path)
 			json_data = json.dumps(Category_count)
 			with open(file_path, 'w') as f:
@@ -267,14 +272,17 @@ def staging():
 				            align='left'),
 				cells=dict(values=[df[k].tolist() for k in df.columns[0:]],
 				           align='left'),
-				domain=dict(x=[0, 0.45],
-				            y=[0, 1])
+				domain=dict(x=[0, 1],
+				            y=[0, 0.45])
 			)
 
-			layout = dict(xaxis1=dict(dict(domain=[0.5, 1], anchor='y1')),
-			              yaxis1=dict(dict(domain=[0, 1], anchor='x1')),
-			              title='staging Analysis')
-
+			layout = dict(
+						xaxis1=dict(domain=[0, 1], anchor='y1'),
+						yaxis1=dict(domain=[0.5, 1], anchor='x1'),
+						xaxis2=dict(domain=[0, 1], anchor='y2'),
+						yaxis2=dict(domain=[0, 0.5], anchor='x2'),
+						title='Logs per Day'
+						)
 			fig = go.Figure(data=[trace_table, fig_bar], layout=layout)
 
 			trace_table2 = go.Table(
@@ -304,10 +312,11 @@ def staging():
 			layout4 = dict(title='General information of other clusters')
 			fig4 = go.Figure(data=[trace_table4], layout=layout4)
 
-			fig_html = pio.to_html(fig, full_html=False)
+			fig_html = pio.to_html(fig, full_html=False, default_height='600px')
 			success_analysis = pio.to_html(fig2, full_html=False)
 			fail_analysis = pio.to_html(fig3, full_html=False)
 			other_analysis = pio.to_html(fig4, full_html=False)
+
 
 			return render_template(
 				"staging.html",
@@ -319,10 +328,8 @@ def staging():
 				fail_analysis=fail_analysis,
 				other_analysis=other_analysis,
 			)
-
 		except pd.errors.EmptyDataError:
 			return render_template("error.html", message="File is empty")
-
 	else:
 		return render_template("error.html", message="No staging file found")
 

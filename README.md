@@ -5,7 +5,9 @@
 - The cybersecurity team at Boeing has tasked the UW ENGINE team to develop a cybersecurity threat detection, identification, and mitigation algorithm to assist engineers and airline personnel in dealing with cybersecurity threats.
 - The UW ENGINE team was also tasked with researching and designing an embedded device to generate log files on aircraft devices to normalize and generate log files for devices that are not utilizing Boeing’s standards.
 
-
+<div style="text-align: center;">
+  <img src="src/static/images/Work Breakdown Structure.png" alt="Framework and Tools" style="width: 25%; display: inline-block;">
+</div>
 
 ## **TECHNOLOGY STACK and TOOLS**
 
@@ -17,7 +19,9 @@
 
 - Utilized Pandas to preprocess raw log files and applied clustering algorithms from sci-kit-learn for log analysis purposes.
 
-
+<div style="text-align: center;">
+  <img src="src/static/images/Block diagram.png" alt="Framework and Tools" style="width: 25%; display: inline-block;">
+</div>
 
 ## **IMPLEMENTATION**
 
@@ -46,3 +50,7 @@
 - Implemented user login function with user email verification for security
 
 - Optimized backend analysis for efficient website performance
+
+<div style="text-align: center;">
+  <img src="src/static/images/tools.png" alt="Framework and Tools" style="width: 40%; display: inline-block;">
+</div>

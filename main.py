@@ -24,11 +24,12 @@ def dataload():
 	user = session.get('user')
 	filename = session.get('dataload_filename')
 	if filename and user:
+		absolute_path = os.path.dirname(__file__)
+		full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+		df = log2df(full_path)
+		if df is None:
+			return render_template('error.html', message='Log file is empty')
 		try:
-			absolute_path = os.path.dirname(__file__)
-			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-			# Format data to a dataframe
-			df = log2df(full_path)
 			df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
 			df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
 			logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
@@ -118,11 +119,12 @@ def firewall():
 	user = session.get('user')
 	filename = session.get('firewall_filename')
 	if filename and user:
+		absolute_path = os.path.dirname(__file__)
+		full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+		df = log2df(full_path)
+		if df is None:
+			return render_template('error.html', message='Log file is empty')
 		try:
-			absolute_path = os.path.dirname(__file__)
-			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-			# Format data to a dataframe
-			df = log2df(full_path)
 			df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
 			df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
 			logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')
@@ -187,11 +189,12 @@ def staging():
 	user = session.get('user')
 	filename = session.get('staging_filename')
 	if filename and user:
+		absolute_path = os.path.dirname(__file__)
+		full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+		df = log2df(full_path)
+		if df is None:
+			return render_template('error.html', message='Log file is empty')
 		try:
-			absolute_path = os.path.dirname(__file__)
-			full_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-			# Format data to a dataframe
-			df = log2df(full_path)
 			df['Episode Start Date'] = pd.to_datetime(df['Episode Start Date'])
 			df['Episode Start Date'] = df['Episode Start Date'].dt.strftime('%Y-%m-%d')
 			logs_per_day = df.groupby(df['Episode Start Date']).size().reset_index(name='Count')

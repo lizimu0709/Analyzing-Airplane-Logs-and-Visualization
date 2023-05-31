@@ -58,7 +58,6 @@ def results_by_Category(df_log):
             Category_count[Category] = (df_temp["Y_Gaussian"].value_counts().to_dict())
     return Category_count, feature_count, detailed_information
 
-
 def log2df(file_path):
     def get_columns_from_file(filename):
         Columns = []
@@ -82,19 +81,24 @@ def log2df(file_path):
 
     def read_episodes_from_file(filename):
         Episodes = []
-        with open(filename, 'r') as f:
-            for line in f:
-                if "Begin-----" in line:
-                    obj = Episode()
-                elif "End-----" in line:
-                    Episodes.append(obj)
-                else:
-                    temp = line.split(': ')[-1].strip()
-                    Episode_type = line.split(': ')[0].strip()
-                    obj.__dict__[Episode_type] = temp
+        try:
+            with open(filename, 'r') as f:
+                for line in f:
+                    if "Begin-----" in line:
+                        obj = Episode()
+                    elif "End-----" in line:
+                        Episodes.append(obj)
+                    else:
+                        temp = line.split(': ')[-1].strip()
+                        Episode_type = line.split(': ')[0].strip()
+                        obj.__dict__[Episode_type] = temp
+        except FileNotFoundError:
+            return None
         return Episodes
 
     Episodes = read_episodes_from_file(file_path)
+    if Episodes is None:
+        return None
     df_log = pd.DataFrame([vars(obj) for obj in Episodes])
     return df_log
 
@@ -102,7 +106,6 @@ def log2df(file_path):
 def cluster(df_feature, df):
     org_Feature = df["Features"]
     X = np.array(df_feature)
-    # get number of clusters and final model
     set_feature = len(set(org_Feature))
     overall = len(org_Feature)
 
@@ -138,7 +141,6 @@ def cluster(df_feature, df):
             best_num = set_feature
     best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
 
-    # clustering model and results
     final_model = best_model.fit(X)
     y_gaus = final_model.predict(X)
 

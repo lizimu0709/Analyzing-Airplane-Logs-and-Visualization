@@ -130,10 +130,11 @@
             <div style="width: 100%; height: 100%; float: right; position: static; font-family: system-ui; margin-top: 20px;"> {{ other_analysis | safe }}</div>
         </div>
 
+        <input type="hidden" id="dataload-json-url" value="{{ url_for('static', filename='dataload.json') }}">
         <script type="text/javascript">
             var json_data = null;
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', '{{ url_for('static', filename='dataload.json') }}', false);
+            var dataloadJsonUrl = document.getElementById('dataload-json-url').value;
             xhr.onload = function() {
             if (xhr.status === 200) {
             json_data = JSON.parse(xhr.responseText);

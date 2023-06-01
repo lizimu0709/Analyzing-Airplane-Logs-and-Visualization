@@ -58,6 +58,7 @@ def results_by_Category(df_log):
             Category_count[Category] = (df_temp["Y_Gaussian"].value_counts().to_dict())
     return Category_count, feature_count, detailed_information
 
+
 def log2df(file_path):
     def get_columns_from_file(filename):
         Columns = []
@@ -106,6 +107,7 @@ def log2df(file_path):
 def cluster(df_feature, df):
     org_Feature = df["Features"]
     X = np.array(df_feature)
+    # get number of clusters and final model
     set_feature = len(set(org_Feature))
     overall = len(org_Feature)
 
@@ -141,6 +143,7 @@ def cluster(df_feature, df):
             best_num = set_feature
     best_model = GaussianMixture(best_num, covariance_type='spherical', random_state=0)
 
+    # clustering model and results
     final_model = best_model.fit(X)
     y_gaus = final_model.predict(X)
 

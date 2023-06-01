@@ -41,10 +41,10 @@
         <div style="width: 100%; height: 100%; float: left; position: static;">{{plot_firewall | safe}}</div>
 
         <div id="container">
-            <div id="other-chart" style="width: 50%; height: 400px; float: left;"></div>
-            <div style="width: 50%; float: left; font-family: system-ui; font-weight: bold; margin-top: 100px;"> Notable Features</div>
-            <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> High Frequency: <br>{{ feature_count['Other']['high'][0] }} <br> {{ feature_count['Other']['high'][1] }} </div>
-            <div style="width: 50%; float: left; font-family: system-ui; margin-top: 10px;"> Low Frequency: <br>{{ feature_count['Other']['low'][0] }} <br> {{ feature_count['Other']['low'][1] }} </div>
+            <div id="other-chart" style="width: 45%; height: 400px; float: left;padding-left: 65px;"></div>
+            <div style="width: 48%; float: left; font-family: Arial,sans-serif; font-weight: bold; margin-top: 80px;font-size: 23px;padding-left: 15px;"> Notable Features</div>
+            <div style="width: 48%; float: left; font-family: Arial,sans-serif; margin-top: 25px;font-size: 18px;padding-left: 15px;"> <b>High</b> Frequency: <br>{{ feature_count['Other']['high'][0] }} <br> {{ feature_count['Other']['high'][1] }} </div>
+            <div style="width: 48%; float: left; font-family: Arial,sans-serif; margin-top: 10px;font-size: 18px;padding-left: 15px;"> <b>Low</b> Frequency: <br>{{ feature_count['Other']['low'][0] }} <br> {{ feature_count['Other']['low'][1] }} </div>
             <div style="width: 100%; height: 100%; float: right; position: static; font-family: system-ui; margin-top: 20px;"> {{ other_analysis | safe }}</div>
         </div>
 
